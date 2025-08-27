@@ -1,27 +1,29 @@
+# main.py
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from src.controller.v1.user import user_router
+from sqlalchemy import text
+from src.database.database import engine
+from src.database.migration_manager import setup_database
 
-app = FastAPI(
-    title="two factor API",
-    description="API for two factor authentication",
-    version="0.0.1",
-)
+# Setup database all'avvio
+print("🚀 Avvio Simple Pay...")
+setup_database()
 
-origins = [
-    "*",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app.include_router(user_router)
+# App FastAPI
+app = FastAPI(title="Simple Pay", version="1.0.0")
 
 @app.get("/")
-def root():
-    return {"message": "Hello coder!"}
+def read_root():
+    return {"message": "Simple Pay API"}
+
+@app.get("/health")
+def health_check():
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"status": "healthy"}
+    except:
+        return {"status": "error"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
