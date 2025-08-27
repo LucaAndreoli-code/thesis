@@ -1,0 +1,22 @@
+# FastAPI and ASGI
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+
+# Database
+sqlalchemy==2.0.43
+alembic==1.16.1
+psycopg2-binary==2.9.10
+
+# Authentication & Security
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.20
+
+# Environment & Config
+python-dotenv==1.1.1
+pydantic-settings==2.10.1
+
+# Development & Testing
+pytest==8.4.1
+pytest-asyncio==1.1.0
+httpx==0.28.1
