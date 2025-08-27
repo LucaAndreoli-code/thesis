@@ -5,7 +5,7 @@ from src.database.database import engine
 from src.database.migration_manager import setup_database
 
 # Setup database all'avvio
-print("🚀 Avvio Simple Pay...")
+print("Starting ...")
 setup_database()
 
 # App FastAPI

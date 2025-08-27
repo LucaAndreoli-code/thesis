@@ -12,7 +12,6 @@ from src.models import Base
 
 
 def run_command(cmd):
-    """Esegue comando shell"""
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
         return True, result.stdout
@@ -21,63 +20,59 @@ def run_command(cmd):
 
 
 def auto_migrate():
-    """Auto-migrazione solo se necessario"""
-    print("🔍 Controllo se servono migrazioni...")
+    print("Check migrations...")
 
     # Prima controlla se ci sono differenze senza creare file
     success, output = run_command("alembic check")
     if success:
-        print("✅ Database già aggiornato")
+        print("Database up-to-date, no migrations needed.")
         return True
 
     # Se alembic check fallisce, significa che ci sono differenze
-    print("📝 Rilevate modifiche, creo migrazione...")
+    print("Found differences, creating migration...")
     success, output = run_command("alembic revision --autogenerate -m 'Auto update'")
 
     if "No changes in schema detected" in output:
-        print("✅ Nessuna migrazione necessaria")
+        print("Database up-to-date, no migrations needed.")
         return True
 
     if success:
-        print("✅ Migrazione creata")
+        print("Migration file created.")
         # Applica migrazione
         success, output = run_command("alembic upgrade head")
         if success:
-            print("✅ Migrazione applicata")
+            print("Migration applied successfully.")
             return True
         else:
-            print(f"❌ Errore applicazione: {output}")
+            print(f"Migration Error: {output}")
     else:
-        print(f"❌ Errore creazione migrazione: {output}")
+        print(f"Creating migration error: {output}")
 
     return False
 
 
 def setup_database():
-    """Setup database completo"""
-    print("🗄️ Setup database...")
-
     # Test connessione
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        print("✅ Connessione database OK")
+        print("Database connection successful.")
     except Exception as e:
-        print(f"❌ Errore connessione: {e}")
-        return False
+        print(f"Connection error: {e}")
+        quit()
 
     # Controlla tabelle
     inspector = inspect(engine)
     tables = inspector.get_table_names()
 
     if len(tables) == 0:
-        print("📋 Database vuoto, creo tabelle...")
+        print("Database is empty, creating tables...")
         Base.metadata.create_all(bind=engine)
         run_command("alembic stamp head")
-        print("✅ Database inizializzato")
+        print("Database initialized with tables.")
     else:
-        print("🔄 Database esistente, controllo migrazioni...")
+        print("Database has tables, checking migrations...")
         auto_migrate()
 
-    print("🎉 Database pronto!")
+    print("Database ready!")
     return True
