@@ -10,7 +10,7 @@ print("Starting ...")
 setup_database()
 
 # App FastAPI
-app = FastAPI(title="Simple Pay", version="1.0.0")
+app = FastAPI(title="Simple Pay", version="1.0.0", docs_url="/docs")
 
 app.include_router(router)
 
@@ -29,4 +29,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
