@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from decimal import Decimal
 from datetime import datetime
 import uuid
@@ -19,7 +19,7 @@ class PaymentRequest(BaseModel):
     amount: float
     description: Optional[str] = None
 
-    @validator('amount')
+    @field_validator('amount')
     def validate_amount(cls, v):
         if v <= 0:
             raise ValueError('Amount must be greater than 0')
