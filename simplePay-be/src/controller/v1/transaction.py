@@ -10,7 +10,7 @@ from src.database.database import get_db  # Your database session dependency
 from src.models.wallet import Wallet
 from src.models.transaction import Transaction
 
-router = APIRouter(prefix="/payments", tags=["payments"])
+router = APIRouter(prefix="/payments", tags=["Payments"])
 
 
 class PaymentRequest(BaseModel):
