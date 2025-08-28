@@ -42,6 +42,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
 
         return {
             "access_token": access_token,
+            "token_type": "bearer"
         }
     except HTTPException:
         raise

@@ -7,8 +7,10 @@ import uuid
 from typing import Optional
 
 from src.database.database import get_db  # Your database session dependency
+from src.models import User
 from src.models.wallet import Wallet
 from src.models.transaction import Transaction
+from src.service.auth import get_current_user
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -36,10 +38,11 @@ class PaymentResponse(BaseModel):
 @router.post("/", response_model=PaymentResponse)
 async def create_payment(
         payment: PaymentRequest,
+        current_user:User=Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
     # Get wallets
-    from_wallet = db.query(Wallet).filter(Wallet.wallet_number == payment.from_wallet_number).first()
+    from_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
     to_wallet = db.query(Wallet).filter(Wallet.wallet_number == payment.to_wallet_number).first()
 
     if not from_wallet:
