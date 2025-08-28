@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from src.database.database import engine
 from src.database.migration_manager import setup_database
+from src.controller.router import router
 
 # Setup database all'avvio
 print("Starting ...")
@@ -10,6 +11,8 @@ setup_database()
 
 # App FastAPI
 app = FastAPI(title="Simple Pay", version="1.0.0")
+
+app.include_router(router)
 
 @app.get("/")
 def read_root():

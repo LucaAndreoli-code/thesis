@@ -1,23 +1,24 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from .base import Base
+from datetime import datetime
+from .user import Base
 
 
 class Wallet(Base):
     __tablename__ = "wallets"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    wallet_number = Column(String(50), unique=True, nullable=False)
-    wallet_type = Column(String(20), nullable=False)
-    balance = Column(DECIMAL(15, 2), default=0.00, nullable=False)
-    available_balance = Column(DECIMAL(15, 2), default=0.00, nullable=False)
-    status = Column(String(20), default="active", nullable=False)
-    currency = Column(String(3), default="EUR", nullable=False)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    wallet_number = Column(String(20), unique=True, nullable=False, index=True)
+    balance = Column(DECIMAL(15, 2), default=0.00)
+    currency = Column(String(3), default="EUR")
+    status = Column(String(20), default="active")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user = relationship("User", back_populates="wallets")
-    wallet_type_rel = relationship("WalletType", back_populates="wallets")
-    transactions_from = relationship("Transaction", foreign_keys="Transaction.from_wallet_id", back_populates="from_wallet")
-    transactions_to = relationship("Transaction", foreign_keys="Transaction.to_wallet_id", back_populates="to_wallet")
+    # Relationships
+    user = relationship("User", back_populates="wallet")
+    sent_transactions = relationship("Transaction", foreign_keys="Transaction.from_wallet_id",
+                                     back_populates="from_wallet")
+    received_transactions = relationship("Transaction", foreign_keys="Transaction.to_wallet_id",
+                                         back_populates="to_wallet")

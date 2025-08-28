@@ -1,8 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-# URL del database - modifica con i tuoi dati
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/postgres"
+from src.config.config import DATABASE_URL
 
 # Crea engine
 engine = create_engine(DATABASE_URL)
