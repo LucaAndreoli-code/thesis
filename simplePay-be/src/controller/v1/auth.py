@@ -12,15 +12,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-
-class UserRegister(BaseModel):
-    email: EmailStr
-    username: str
-    password: str
-    first_name: str
-    last_name: str
-
-
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -30,18 +21,19 @@ class Token(BaseModel):
 @router.post("/login")
 async def login(user_data: UserLogin,  db=Depends(get_db)):
     # Verifica username e password e ritorna token per login
-    user = User(
-        email=user_data.email,
-    )
+    user = User.find_by_email(db=db, email=str(user_data.email))
     user.verify_password(user_data.password, db)
 
     return {
-        "email": user.email,
-        "username": user.username,
-        "first_name": user.first_name,
-        "last_name": user.last_name
+        "access_token": user.generate_jwt()
     }
 
+class UserRegister(BaseModel):
+    email: EmailStr
+    username: str
+    password: str
+    first_name: str
+    last_name: str
 
 @router.post("/register", response_model=dict)
 async def register(user_data: UserRegister, db=Depends(get_db)):
