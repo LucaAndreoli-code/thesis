@@ -14,9 +14,7 @@ from src.service.auth import get_current_user
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
-
 class PaymentRequest(BaseModel):
-    from_wallet_number: str
     to_wallet_number: str
     amount: float
     description: Optional[str] = None
@@ -35,7 +33,7 @@ class PaymentResponse(BaseModel):
     message: str
 
 
-@router.post("/", response_model=PaymentResponse)
+@router.post("/send", response_model=PaymentResponse)
 async def create_payment(
         payment: PaymentRequest,
         current_user:User=Depends(get_current_user),

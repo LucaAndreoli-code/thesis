@@ -7,14 +7,10 @@ from src.database.database import get_db  # Your database session dependency
 
 security = HTTPBearer()
 
-
 def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         db: Session = Depends(get_db)
 ) -> User:
-    """
-    Dependency to get current authenticated user
-    """
     token = credentials.credentials
 
     # Verify token and get payload

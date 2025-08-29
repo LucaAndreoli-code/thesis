@@ -100,7 +100,7 @@ class UserService:
             user_id=user_id,
             wallet_number=wallet_number,
             balance=0.00,
-            status="ACTIVE",
+            status="active",
             currency="EUR"
         )
 
