@@ -195,6 +195,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted } from 'vue'
 
 const router = useRouter()
 const handleLogout = () => {
@@ -203,4 +204,71 @@ const handleLogout = () => {
   localStorage.removeItem('userName')
   router.push('/login')
 }
+
+// Funzione per aprire una modale
+function openModal(modalId: string) {
+  const modal = document.getElementById(modalId)
+  if (modal) {
+    modal.classList.add('active')
+    document.body.style.overflow = 'hidden'
+  }
+}
+
+// Funzione per chiudere una modale
+function closeModal(modalId: string) {
+  const modal = document.getElementById(modalId)
+  if (modal) {
+    modal.classList.remove('active')
+    document.body.style.overflow = 'auto'
+  }
+}
+
+// Funzione per mostrare un tab (se usato)
+function showTab(tabId: string, event: Event) {
+  const tabs = document.querySelectorAll('.tab')
+  const tabContents = document.querySelectorAll('.tab-content')
+  tabs.forEach((tab) => tab.classList.remove('active'))
+  tabContents.forEach((content) => content.classList.remove('active'))
+  if (event.target instanceof HTMLElement) {
+    event.target.classList.add('active')
+  }
+  const tab = document.getElementById(tabId)
+  if (tab) tab.classList.add('active')
+}
+
+// Listener per chiudere la modale cliccando fuori
+function handleWindowClick(event: MouseEvent) {
+  if (event.target instanceof HTMLElement && event.target.classList.contains('modal')) {
+    event.target.classList.remove('active')
+    document.body.style.overflow = 'auto'
+  }
+}
+
+// Formatter per numero carta e data scadenza
+function handleInputFormat(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (!target) return
+  if (target.placeholder === '1234 5678 9012 3456') {
+    let value = target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '')
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ')
+    target.value = formattedValue || value
+  }
+  if (target.placeholder === 'MM/AA') {
+    let value = target.value.replace(/\D/g, '')
+    if (value.length >= 2) {
+      value = value.substring(0, 2) + '/' + value.substring(2, 4)
+    }
+    target.value = value
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleWindowClick)
+  document.addEventListener('input', handleInputFormat)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleWindowClick)
+  document.removeEventListener('input', handleInputFormat)
+})
 </script>
