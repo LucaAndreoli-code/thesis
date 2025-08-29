@@ -7,17 +7,23 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import inspect, text
-from database import engine
+from src.database.database import engine
 from src.models import Base
 
 
 def run_command(cmd):
-    try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
-        return True, result.stdout
-    except subprocess.CalledProcessError as e:
-        return False, e.stderr
+    # Specifica la directory di lavoro come la directory corrente del script
+    cwd = os.path.dirname(os.path.abspath(__file__))
 
+    result = subprocess.run(
+        cmd,
+        shell=True,
+        capture_output=True,
+        text=True,
+        cwd=cwd  # Aggiungi questo
+    )
+    output = result.stdout + result.stderr
+    return result.returncode == 0, output
 
 def auto_migrate():
     print("Check migrations...")

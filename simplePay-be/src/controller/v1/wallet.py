@@ -12,8 +12,7 @@ from src.models.wallet import Wallet
 from src.models.transaction import Transaction
 from src.service.auth import get_current_user
 
-router = APIRouter(prefix="/api/wallet", tags=["wallet"])
-
+router = APIRouter(prefix="/api/wallet", tags=["Wallet"])
 
 class DepositRequest(BaseModel):
     amount: float
@@ -125,7 +124,8 @@ async def deposit_wallet(
             amount=deposit_amount,
             description=f"Card deposit - **** {deposit.card_number[-4:]}",
             reference_code=reference_code,
-            status="completed"
+            status="completed",
+            transaction_type="deposit"
         )
 
         # Update wallet balance
@@ -206,7 +206,8 @@ async def withdraw_from_wallet(
             amount=withdraw_amount,
             description=f"Bank withdrawal - {withdraw.bank_name}",
             reference_code=reference_code,
-            status="completed"
+            status="completed",
+            transaction_type="withdraw"
         )
 
         # Update wallet balance

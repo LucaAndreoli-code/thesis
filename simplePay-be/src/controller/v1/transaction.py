@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from operator import and_
+
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, field_validator
 from decimal import Decimal
@@ -27,7 +30,6 @@ class PaymentRequest(BaseModel):
 
 
 class PaymentResponse(BaseModel):
-    transaction_id: int
     reference_code: str
     status: str
     message: str
@@ -83,17 +85,18 @@ async def create_payment(
         )
 
         # Generate reference code
-    reference_code = f"PAY{uuid.uuid4().hex[:8].upper()}"
+    reference_code_from = f"PAY{uuid.uuid4().hex[:8].upper()}"
 
     try:
         # Create transaction
-        transaction = Transaction(
+        transaction_user_from = Transaction(
             from_wallet_id=from_wallet.id,
             to_wallet_id=to_wallet.id,
             amount=payment_amount,
             description=payment.description or f"Payment to {to_wallet.wallet_number}",
-            reference_code=reference_code,
-            status="completed"
+            reference_code=reference_code_from,
+            status="completed",
+            transaction_type="send"
         )
 
         # Update balances
@@ -103,16 +106,33 @@ async def create_payment(
         to_wallet.updated_at = datetime.utcnow()
 
         # Set processed timestamp
-        transaction.processed_at = datetime.utcnow()
+        transaction_user_from.processed_at = datetime.utcnow()
 
         # Save to database
-        db.add(transaction)
+        db.add(transaction_user_from)
         db.commit()
-        db.refresh(transaction)
+        db.refresh(transaction_user_from)
+
+        reference_code_to = f"PAY{uuid.uuid4().hex[:8].upper()}"
+
+        transaction_user_to = Transaction(
+            from_wallet_id=from_wallet.id,
+            to_wallet_id=to_wallet.id,
+            amount=payment_amount,
+            description=payment.description or f"Receiving from {from_wallet.wallet_number}",
+            reference_code=reference_code_to,
+            parent_reference_code=reference_code_from,
+            status="completed",
+            transaction_type="receive"
+        )
+
+        # Save to database
+        db.add(transaction_user_to)
+        db.commit()
+        db.refresh(transaction_user_to)
 
         return PaymentResponse(
-            transaction_id=transaction.id,
-            reference_code=reference_code,
+            reference_code=reference_code_from,
             status="completed",
             message="Payment completed successfully"
         )
@@ -123,3 +143,67 @@ async def create_payment(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Payment failed"
         )
+
+
+@router.get("/transactions")
+async def get_transactions(
+        page: int = Query(1, ge=1),
+        limit: int = Query(10, ge=1, le=100),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    # Get user's wallet
+    wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+
+    # Query for incoming and outgoing transactions
+    offset = (page - 1) * limit
+
+    transactions = db.query(Transaction).filter(
+        and_(
+            or_(
+                Transaction.from_wallet_id == wallet.id,
+                Transaction.to_wallet_id == wallet.id
+            ),
+            Transaction.transaction_type != "receive"
+        )
+    ).order_by(Transaction.created_at.desc()).offset(offset).limit(limit).all()
+
+    # Count total for pagination
+    total = db.query(Transaction).filter(
+        and_(
+            or_(
+                Transaction.from_wallet_id == wallet.id,
+                Transaction.to_wallet_id == wallet.id
+            ),
+            Transaction.transaction_type != "receive"
+        )
+    ).count()
+
+    # Format transactions with type (incoming/outgoing)
+    formatted_transactions = []
+    for tx in transactions:
+        transaction_type = "incoming" if tx.transaction_type in ["deposit", "receive"] else "outgoing"
+        formatted_transactions.append({
+            "id": tx.id,
+            "type": transaction_type,
+            "amount": tx.amount,
+            "currency": tx.currency,
+            "description": tx.description,
+            "reference_code": tx.reference_code,
+            "status": tx.status,
+            "created_at": tx.created_at,
+            "processed_at": tx.processed_at
+        })
+
+    return {
+        "transactions": formatted_transactions,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "total_pages": (total + limit - 1) // limit
+        }
+    }

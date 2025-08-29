@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .user import User, Base
+from .base import Base
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -13,9 +13,11 @@ class Transaction(Base):
     currency = Column(String(3), default="EUR")
     description = Column(String(255))
     reference_code = Column(String(50), unique=True, nullable=False, index=True)
+    parent_reference_code = Column(String(50), nullable=True) # For linking related transactions
     status = Column(String(20), default="pending")  # pending, completed, failed
     created_at = Column(DateTime, default=datetime.utcnow)
     processed_at = Column(DateTime)
+    transaction_type = Column(String(20), nullable=True)  # deposit, withdrawal, transfer
 
     # Relationships
     from_wallet = relationship("Wallet", foreign_keys=[from_wallet_id], back_populates="sent_transactions")

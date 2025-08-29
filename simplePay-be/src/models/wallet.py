@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .user import Base
-
+from .base import Base
 
 class Wallet(Base):
     __tablename__ = "wallets"

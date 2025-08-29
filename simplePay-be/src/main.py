@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 from src.database.database import engine
-from src.database.migration_manager import setup_database
+from migration_manager import setup_database
 from src.controller.router import router
 
 # Setup database all'avvio
