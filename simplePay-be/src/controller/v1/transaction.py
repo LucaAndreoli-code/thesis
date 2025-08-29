@@ -116,8 +116,8 @@ async def create_payment(
         reference_code_to = f"PAY{uuid.uuid4().hex[:8].upper()}"
 
         transaction_user_to = Transaction(
-            from_wallet_id=from_wallet.id,
-            to_wallet_id=to_wallet.id,
+            from_wallet_id=to_wallet.id,
+            to_wallet_id=from_wallet.id,
             amount=payment_amount,
             description=payment.description or f"Receiving from {from_wallet.wallet_number}",
             reference_code=reference_code_to,
@@ -158,38 +158,51 @@ async def get_transactions(
     if not wallet:
         raise HTTPException(status_code=404, detail="Wallet not found")
 
-    # Query for incoming and outgoing transactions
+    # Query for user's transactions
     offset = (page - 1) * limit
 
     transactions = db.query(Transaction).filter(
-        and_(
-            or_(
-                Transaction.from_wallet_id == wallet.id,
-                Transaction.to_wallet_id == wallet.id
-            ),
-            Transaction.transaction_type != "receive"
+        or_(
+            Transaction.from_wallet_id == wallet.id,
+            Transaction.to_wallet_id == wallet.id
         )
     ).order_by(Transaction.created_at.desc()).offset(offset).limit(limit).all()
 
     # Count total for pagination
     total = db.query(Transaction).filter(
-        and_(
-            or_(
-                Transaction.from_wallet_id == wallet.id,
-                Transaction.to_wallet_id == wallet.id
-            ),
-            Transaction.transaction_type != "receive"
+        or_(
+            Transaction.from_wallet_id == wallet.id,
+            Transaction.to_wallet_id == wallet.id
         )
     ).count()
 
-    # Format transactions with type (incoming/outgoing)
+    # Format transactions based on type and user perspective
     formatted_transactions = []
+    processed_references = set()
+
     for tx in transactions:
-        transaction_type = "incoming" if tx.transaction_type in ["deposit", "receive"] else "outgoing"
+        # Skip if already processed
+        if tx.reference_code in processed_references:
+            continue
+
+        # Determina il tipo di transazione dal punto di vista dell'utente
+        if tx.transaction_type == "deposit":
+            transaction_type = "deposit"
+        elif tx.transaction_type == "withdraw":
+            transaction_type = "withdraw"
+        elif tx.from_wallet_id == wallet.id and tx.to_wallet_id != wallet.id:
+            # L'utente ha inviato soldi
+            transaction_type = "send"
+        elif tx.to_wallet_id == wallet.id and tx.from_wallet_id != wallet.id:
+            # L'utente ha ricevuto soldi
+            transaction_type = "receive"
+        else:
+            continue  # Skip transazioni anomale
+
         formatted_transactions.append({
             "id": tx.id,
             "type": transaction_type,
-            "amount": tx.amount,
+            "amount": abs(tx.amount),  # Sempre positivo, il tipo indica la direzione
             "currency": tx.currency,
             "description": tx.description,
             "reference_code": tx.reference_code,
@@ -198,12 +211,15 @@ async def get_transactions(
             "processed_at": tx.processed_at
         })
 
+        # Marca il reference_code come processato
+        processed_references.add(tx.reference_code)
+
     return {
         "transactions": formatted_transactions,
         "pagination": {
             "page": page,
             "limit": limit,
-            "total": total,
-            "total_pages": (total + limit - 1) // limit
+            "total": len(formatted_transactions),  # Usa il count dei risultati filtrati
+            "total_pages": (len(formatted_transactions) + limit - 1) // limit
         }
     }
