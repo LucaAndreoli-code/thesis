@@ -99,6 +99,29 @@
             }}{{ transaction.amount.toFixed(2) }} {{ transaction.currency }}
           </div>
         </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-6">
+          <span class="text-sm text-base-content/70">
+            Pagina {{ page }} di {{ userTransactions.pagination.total_pages || 1 }}
+          </span>
+          <div class="flex gap-2">
+            <button
+              class="btn btn-sm btn-outline"
+              :disabled="page <= 1"
+              @click="changePage(page - 1)"
+            >
+              Precedente
+            </button>
+            <button
+              class="btn btn-sm btn-outline"
+              :disabled="page >= (userTransactions.pagination.total_pages || 1)"
+              @click="changePage(page + 1)"
+            >
+              Successiva
+            </button>
+          </div>
+        </div>
       </div>
       <div v-else class="py-4 text-center text-base-content/70">
         Nessuna transazione disponibile
@@ -138,6 +161,12 @@ onMounted(() => {
   getUserTransactions()
   getUserBalance()
 })
+
+const changePage = (newPage: number) => {
+  if (newPage < 1) return
+  page.value = newPage
+  getUserTransactions()
+}
 
 const getUserBalance = async () => {
   try {

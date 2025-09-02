@@ -42,7 +42,7 @@ class DepositRequest(BaseModel):
 class WithdrawRequest(BaseModel):
     amount: float
     bank_account: str
-    bank_name: str
+    back_account_name: str
 
     @field_validator('amount')
     def validate_amount(cls, v):
@@ -206,7 +206,7 @@ async def withdraw_from_wallet(
             from_wallet_id=user_wallet.id,
             to_wallet_id=user_wallet.id,  # Using same wallet as placeholder
             amount=withdraw_amount,
-            description=f"Bank withdrawal - {withdraw.bank_name}",
+            description=f"Bank withdrawal - {withdraw.back_account_name}",
             reference_code=reference_code,
             status="completed",
             transaction_type="withdraw"

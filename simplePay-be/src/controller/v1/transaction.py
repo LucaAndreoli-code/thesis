@@ -17,7 +17,7 @@ from src.service.auth import get_current_user
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
 class PaymentRequest(BaseModel):
-    to_wallet_number: str
+    to_user_email: str
     amount: float
     description: Optional[str] = None
 
@@ -42,7 +42,8 @@ async def create_payment(
 ):
     # Get wallets
     from_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
-    to_wallet = db.query(Wallet).filter(Wallet.wallet_number == payment.to_wallet_number).first()
+    to_wallet = db.query(Wallet).join(User, Wallet.user_id == User.id).filter(
+        User.email == payment.to_user_email).first()
 
     if not from_wallet:
         raise HTTPException(
@@ -219,6 +220,6 @@ async def get_transactions(
             "page": page,
             "limit": limit,
             "total": len(formatted_transactions),  # Usa il count dei risultati filtrati
-            "total_pages": (len(formatted_transactions) + limit - 1) // limit
+            "total_pages": (len(formatted_transactions) + limit) // limit
         }
     }

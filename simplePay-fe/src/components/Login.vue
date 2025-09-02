@@ -50,8 +50,6 @@ const email = ref('')
 const password = ref('')
 
 const handleLogin = async () => {
-  console.log('Login:', email.value, password.value)
-
   if (email.value && password.value) {
     try {
       const res = await auth.login(email.value, password.value)

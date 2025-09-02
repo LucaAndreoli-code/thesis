@@ -1,5 +1,5 @@
 export interface SendMoneyRequest {
-  to_wallet_number: string
+  to_user_email: string
   amount: number
   description: string
 }
