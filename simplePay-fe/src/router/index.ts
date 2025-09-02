@@ -41,7 +41,7 @@ const isAuthenticated = () => {
   return localStorage.getItem('userToken') !== null
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const authenticated = isAuthenticated()
 
   if (to.meta.requiresAuth && !authenticated) {
