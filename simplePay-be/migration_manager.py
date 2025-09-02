@@ -1,12 +1,19 @@
 import os
+import string
 import subprocess
 import sys
+from random import random
+
+from sqlalchemy.orm import sessionmaker
+
+from src.controller.v1.transaction import create_payment
+from src.service.user import UserService
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import inspect, text
 from src.database.database import engine
-from src.models import Base
+from src.models import Base, Wallet, User, Transaction
 
 
 def run_command(cmd):
@@ -68,9 +75,72 @@ def setup_database():
         Base.metadata.create_all(bind=engine)
         run_command("alembic stamp head")
         print("Database initialized with tables.")
+        if not seed_initial_data():
+            print("Attenzione: errore durante l'inserimento dei dati iniziali")
+            return False
     else:
         print("Database has tables, checking migrations...")
         auto_migrate()
 
     print("Database ready!")
+    return True
+
+def seed_initial_data():
+    print("Inserimento dati iniziali...")
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        users_data = [
+            {
+                "username": "user1",
+                "email": "user@example.com",
+                "first_name": "User",
+                "last_name": "One",
+                "password": "password123"
+            },
+            {
+                "username": "test",
+                "email": "test@example.com",
+                "first_name": "Test",
+                "last_name": "User",
+                "password": "password123"
+            },
+            {
+                "username": "mario",
+                "email": "mario@example.com",
+                "first_name": "Mario",
+                "last_name": "Rossi",
+                "password": "password123"
+            }
+        ]
+
+        for user_data in users_data:
+            UserService.create_user(session, user_data)
+
+        wallets = session.query(Wallet).all()
+        for wallet in wallets:
+            wallet.balance = 100.00
+            transactions = Transaction(
+                from_wallet_id=None,
+                to_wallet_id=wallet.id,
+                amount=wallet.balance,
+                description=f"First deposit to {wallet.wallet_number}",
+                reference_code=f"TOP{os.urandom(4).hex().upper()}",
+                status="completed",
+                transaction_type="deposit"
+            )
+            session.add(transactions)
+
+        session.commit()
+        print(f"Creati {len(users_data)} utenti e i loro wallet con successo!")
+
+    except Exception as e:
+        print(f"Errore durante l'inserimento dei dati iniziali: {e}")
+        session.rollback()
+        return False
+    finally:
+        session.close()
+
     return True

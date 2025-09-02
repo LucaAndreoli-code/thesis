@@ -11,7 +11,9 @@ export interface TokenInformations {
 }
 
 export function getTokenInfo() {
-  const decoded = jwtDecode(localStorage.getItem('userToken') ?? '')
+  const token = localStorage.getItem('userToken')
+  if (!token) return null
+  const decoded = jwtDecode(token)
   if (!decoded) return null
 
   return decoded as TokenInformations

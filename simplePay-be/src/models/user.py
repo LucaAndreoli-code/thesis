@@ -17,7 +17,6 @@ class User(Base):
     last_name = Column(String(50), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_verified = Column(Boolean, default=False)
 
     wallet = relationship("Wallet", back_populates="user")
 
@@ -35,6 +34,5 @@ class User(Base):
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "is_verified": self.is_verified,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }

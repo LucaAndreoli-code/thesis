@@ -28,7 +28,6 @@ class UserResponse(BaseModel):
     username: str
     first_name: str
     last_name: str
-    is_verified: bool
 
 @router.post("/login", response_model=Token)
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
@@ -60,7 +59,6 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             username=user.username,
             first_name=user.first_name,
             last_name=user.last_name,
-            is_verified=user.is_verified
         )
     except HTTPException:
         raise

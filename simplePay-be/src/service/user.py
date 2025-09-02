@@ -30,7 +30,6 @@ class UserService:
                 password_hash=hashed_password,
                 first_name=user_data['first_name'],
                 last_name=user_data['last_name'],
-                is_verified=True
             )
 
             db.add(db_user)
