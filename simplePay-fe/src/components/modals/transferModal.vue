@@ -6,7 +6,7 @@
         <button class="btn btn-sm btn-circle" onclick="transferModal.close()">✕</button>
       </div>
 
-      <form @submit.prevent="transferMoney">
+      <form @submit.prevent="withLoading(transferMoney)">
         <div class="form-control mb-4">
           <label class="label">
             <span class="label-text font-medium">Importo da trasferire</span>
@@ -31,6 +31,7 @@
             class="input input-bordered w-full"
             placeholder="IT60X0542811101000000123456"
             pattern="[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}"
+            maxlength="34"
             v-model="form.bank_account"
             required
           />
@@ -49,8 +50,19 @@
           />
         </div>
 
-        <button class="btn bg-black text-white w-full">Trasferisci</button>
-        <button type="button" class="btn w-full mt-4" onclick="transferModal.close()">
+        <button
+          :disabled="isLoading"
+          type="submit"
+          class="btn bg-black text-white w-full hover:bg-gray-800"
+        >
+          <span class="loading loading-dots" v-if="isLoading"></span> Trasferisci
+        </button>
+        <button
+          :disabled="isLoading"
+          type="button"
+          class="btn w-full mt-4"
+          onclick="transferModal.close()"
+        >
           Annulla
         </button>
       </form>
@@ -60,10 +72,12 @@
 
 <script lang="ts" setup>
 import wallet, { type WithdrawRequest } from '@/api/wallet'
+import { notify } from '@/service/alert'
+import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
 const form = ref<WithdrawRequest>({
-  amount: 0,
+  amount: null,
   bank_account: '',
   back_account_name: ''
 })
@@ -71,8 +85,12 @@ const form = ref<WithdrawRequest>({
 const transferMoney = async () => {
   try {
     await wallet.withdraw(form.value!)
+    notify('success', 'Bonifico effettuato con successo!')
   } catch (error) {
     console.error(error)
+  } finally {
+    const transferModal = document.getElementById('transferModal') as HTMLDialogElement
+    transferModal.close()
   }
 }
 </script>

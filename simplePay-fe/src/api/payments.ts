@@ -1,6 +1,8 @@
+import { notify } from '@/service/alert'
+
 export interface SendMoneyRequest {
   to_user_email: string
-  amount: number
+  amount: number | null
   description: string
 }
 
@@ -45,6 +47,7 @@ export default {
       body: JSON.stringify(body)
     })
     if (!response.ok) {
+      notify('error', 'Errore durante il pagamento. Controlla i dati inseriti o riprova più tardi.')
       throw new Error('Payment failed')
     }
     return response.text()
@@ -63,6 +66,7 @@ export default {
       }
     )
     if (!response.ok) {
+      notify('error', 'Errore durante il recupero delle transazioni. Riprova più tardi.')
       throw new Error('Fetching transactions failed')
     }
     return response.json() as Promise<Transaction>

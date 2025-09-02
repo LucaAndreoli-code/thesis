@@ -46,8 +46,17 @@
           />
         </div>
 
-        <button class="btn bg-black text-white w-full">Invia</button>
-        <button type="button" class="btn w-full mt-4" onclick="sendModal.close()">Annulla</button>
+        <button :disabled="isLoading" class="btn bg-black text-white w-full hover:bg-gray-800">
+          <span class="loading loading-dots" v-if="isLoading"></span>Invia
+        </button>
+        <button
+          :disabled="isLoading"
+          type="button"
+          class="btn w-full mt-4"
+          onclick="sendModal.close()"
+        >
+          Annulla
+        </button>
       </form>
     </div>
   </dialog>
@@ -56,19 +65,25 @@
 <script lang="ts" setup>
 import type { SendMoneyRequest } from '@/api/payments'
 import payments from '@/api/payments'
+import { notify } from '@/service/alert'
+import { isLoading } from '@/service/loading'
 import { ref } from 'vue'
 
 const form = ref<SendMoneyRequest>({
-  amount: 0,
+  amount: null,
   to_user_email: '',
   description: ''
 })
 
 const sendMoney = async () => {
   try {
-    payments.sendMoney(form.value)
+    await payments.sendMoney(form.value)
+    notify('success', 'Denaro inviato con successo!')
   } catch (error) {
     console.error('Error sending money:', error)
+  } finally {
+    const sendModal = document.getElementById('sendModal') as HTMLDialogElement
+    sendModal.close()
   }
 }
 </script>

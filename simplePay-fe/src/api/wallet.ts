@@ -1,14 +1,16 @@
+import { notify } from '@/service/alert'
+
 export interface DepositRequest {
-  amount: number
+  amount: number | null
   card_number: string
   card_holder: string
-  expiry_month: number
-  expiry_year: number
+  expiry_month: number | null
+  expiry_year: number | null
   cvv: string
 }
 
 export interface WithdrawRequest {
-  amount: number
+  amount: number | null
   bank_account: string
   back_account_name: string
 }
@@ -23,6 +25,7 @@ export default {
       }
     })
     if (!response.ok) {
+      notify('error', 'Errore durante il recupero del saldo. Riprova più tardi.')
       throw new Error('Fetching balance failed')
     }
     return response.json() as Promise<Balance>
@@ -37,6 +40,10 @@ export default {
       body: JSON.stringify(body)
     })
     if (!response.ok) {
+      notify(
+        'error',
+        'Errore durante il deposito. Controlla i dati della tua carta o riprova più tardi.'
+      )
       throw new Error('Deposit failed')
     }
     return response.text()
@@ -51,6 +58,10 @@ export default {
       body: JSON.stringify(body)
     })
     if (!response.ok) {
+      notify(
+        'error',
+        'Errore durante il prelievo. Controlla i dati del tuo conto o riprova più tardi.'
+      )
       throw new Error('Withdrawal failed')
     }
     return response.text()

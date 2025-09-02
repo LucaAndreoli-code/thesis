@@ -6,7 +6,7 @@
         <button class="btn btn-sm btn-circle" onclick="topupModal.close()">✕</button>
       </div>
 
-      <form @submit.prevent="topupMoney">
+      <form @submit.prevent="withLoading(topupMoney)">
         <div class="form-control mb-4">
           <label class="label">
             <span class="label-text font-medium">Importo da ricaricare</span>
@@ -92,8 +92,22 @@
           </div>
         </div>
 
-        <button type="submit" class="btn bg-black text-white w-full">Ricarica</button>
-        <button type="button" class="btn w-full mt-4" onclick="topupModal.close()">Annulla</button>
+        <button
+          :disabled="isLoading"
+          type="submit"
+          class="btn bg-black text-white w-full hover:bg-gray-800"
+        >
+          <span class="loading loading-dots" v-if="isLoading"></span>
+          Ricarica
+        </button>
+        <button
+          :disabled="isLoading"
+          type="button"
+          class="btn w-full mt-4"
+          onclick="topupModal.close()"
+        >
+          Annulla
+        </button>
       </form>
     </div>
   </dialog>
@@ -102,22 +116,28 @@
 <script lang="ts" setup>
 import type { DepositRequest } from '@/api/wallet'
 import wallet from '@/api/wallet'
+import { notify } from '@/service/alert'
+import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
 const form = ref<DepositRequest>({
-  amount: 0,
+  amount: null,
   card_number: '',
   card_holder: '',
-  expiry_month: 0,
-  expiry_year: 0,
+  expiry_month: null,
+  expiry_year: null,
   cvv: ''
 })
 
 const topupMoney = async () => {
   try {
     await wallet.deposit(form.value!)
+    notify('success', 'Ricarica effettuata con successo!')
   } catch (error) {
     console.error('Error during top-up:', error)
+  } finally {
+    const topupModal = document.getElementById('topupModal') as HTMLDialogElement
+    topupModal.close()
   }
 }
 </script>

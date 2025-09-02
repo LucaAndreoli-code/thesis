@@ -187,3 +187,16 @@ const getUserTransactions = async () => {
 
 onUnmounted(() => {})
 </script>
+
+<style scoped>
+/* Override responsive container max-widths */
+.container {
+  @media (width >= 96rem) {
+    max-width: 80rem;
+  }
+
+  @media (width <= 38rem) {
+    max-width: 25rem;
+  }
+}
+</style>
