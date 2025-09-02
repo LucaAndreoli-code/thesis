@@ -56,7 +56,38 @@
 
     <!-- Transaction History -->
     <section class="card bg-base-100 border border-base-300 p-6">
-      <h2 class="text-lg font-medium mb-6 text-base-content">Transazioni recenti</h2>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <h2 class="text-lg font-medium text-base-content">Transazioni recenti</h2>
+        <div class="flex flex-wrap gap-2">
+          <div class="form-control max-w-xs">
+            <input
+              type="text"
+              placeholder="Cerca..."
+              v-model="searchQuery"
+              @input="debounceSearch"
+              class="input input-bordered input-sm"
+            />
+          </div>
+          <div class="flex gap-2">
+            <div class="form-control">
+              <input
+                type="date"
+                v-model="startDate"
+                @change="getUserTransactions"
+                class="input input-bordered input-sm"
+              />
+            </div>
+            <div class="form-control">
+              <input
+                type="date"
+                v-model="endDate"
+                @change="getUserTransactions"
+                class="input input-bordered input-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div v-if="userTransactions && userTransactions.data?.length > 0">
         <div
@@ -147,8 +178,12 @@ import wallet, { type Balance } from '@/api/wallet'
 const router = useRouter()
 const userTransactions = ref<Paginated<Transaction> | null>(null)
 const userBalance = ref<Balance | null>(null)
+
 const page = ref(1)
 const pageSize = ref(10)
+const searchQuery = ref('')
+const startDate = ref('')
+const endDate = ref('')
 
 const userInformation = ref<TokenInformations | null>(null)
 const handleLogout = async () => {
@@ -177,11 +212,28 @@ const getUserBalance = async () => {
 
 const getUserTransactions = async () => {
   try {
-    userTransactions.value = await payments.getTransactions(page.value, pageSize.value)
+    userTransactions.value = await payments.getTransactions(
+      page.value,
+      pageSize.value,
+      searchQuery.value,
+      startDate.value,
+      endDate.value
+    )
   } catch (error) {
     console.error('Error fetching transactions:', error)
   }
 }
+
+const debounceSearch = (() => {
+  let timeout: ReturnType<typeof setTimeout>
+  return () => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      page.value = 1
+      getUserTransactions()
+    }, 500)
+  }
+})()
 
 const getUserInformations = () => {
   getUserTransactions()

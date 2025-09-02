@@ -145,6 +145,9 @@ async def create_payment(
 async def get_transactions(
         page: int = Query(1, ge=1),
         page_size: int = Query(10, ge=1, le=100),
+        search: Optional[str] = Query(None, description="Ricerca per descrizione, codice riferimento o tipo"),
+        start_date: Optional[datetime] = Query(None, description="Data di inizio filtro (formato: YYYY-MM-DD)"),
+        end_date: Optional[datetime] = Query(None, description="Data di fine filtro (formato: YYYY-MM-DD)"),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
@@ -168,6 +171,23 @@ async def get_transactions(
                  and_(Transaction.to_wallet_id.is_(None), Transaction.transaction_type == "withdraw"))
         )
     )
+
+    # Applica filtro di ricerca se fornito
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            or_(
+                Transaction.description.ilike(search_term),
+                Transaction.reference_code.ilike(search_term),
+                Transaction.transaction_type.ilike(search_term)
+            )
+        )
+
+    # Applica filtri per data se forniti
+    if start_date:
+        query = query.filter(Transaction.created_at >= start_date)
+    if end_date:
+        query = query.filter(Transaction.created_at <= end_date)
 
     total = query.count()
     transactions = query.order_by(Transaction.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
