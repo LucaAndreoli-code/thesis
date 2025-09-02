@@ -54,7 +54,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  next() // Procedi con la navigazione
+  next()
 })
 
 export default router

@@ -169,10 +169,10 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted, onUnmounted, ref } from 'vue'
-import TransferModal from './modals/transferModal.vue'
-import TopupModal from './modals/topupModal.vue'
-import SendModal from './modals/sendModal.vue'
+import { onMounted, ref } from 'vue'
+import TransferModal from '@/components/modals/TransferModal.vue'
+import TopupModal from '@/components/modals/TopupModal.vue'
+import SendModal from '@/components/modals/SendModal.vue'
 import { getTokenInfo, type TokenInformations } from '@/service/jwt'
 import payments, { type Paginated, type Transaction } from '@/api/payments'
 import wallet, { type Balance } from '@/api/wallet'
