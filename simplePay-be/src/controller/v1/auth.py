@@ -1,4 +1,3 @@
-# src/routes/auth.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
@@ -53,7 +52,6 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
 @router.post("/register", response_model=UserResponse)
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     try:
-        # Create user with UserService
         user = UserService.create_user(db, user_data.model_dump())
 
         return UserResponse(

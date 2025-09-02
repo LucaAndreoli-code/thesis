@@ -1,4 +1,3 @@
-# src/services/jwt_service.py
 import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException

@@ -13,11 +13,10 @@ class Transaction(Base):
     currency = Column(String(3), default="EUR")
     description = Column(String(255))
     reference_code = Column(String(50), unique=False, nullable=False, index=True)
-    status = Column(String(20), default="pending")  # pending, completed, failed
+    status = Column(String(20), default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
     processed_at = Column(DateTime)
-    transaction_type = Column(String(20), nullable=True)  # deposit, withdrawal, transfer
+    transaction_type = Column(String(20), nullable=True)
 
-    # Relationships
     from_wallet = relationship("Wallet", foreign_keys=[from_wallet_id], back_populates="sent_transactions")
     to_wallet = relationship("Wallet", foreign_keys=[to_wallet_id], back_populates="received_transactions")

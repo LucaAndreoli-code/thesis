@@ -1,5 +1,4 @@
-from typing import Any, Coroutine
-
+from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, field_validator
@@ -26,13 +25,12 @@ class DepositRequest(BaseModel):
 
     @field_validator('amount')
     def validate_amount(cls, v):
-        if v <= 0 or v > 10000:  # Max 10k per transaction
+        if v <= 0 or v > 10000:
             raise ValueError('Amount must be between 0 and 10000')
         return v
 
     @field_validator('card_number')
     def validate_card_number(cls, v):
-        # Basic card number validation (remove spaces)
         card_clean = v.replace(" ", "")
         if not card_clean.isdigit() or len(card_clean) != 16:
             raise ValueError('Invalid card number format')
@@ -46,7 +44,7 @@ class WithdrawRequest(BaseModel):
 
     @field_validator('amount')
     def validate_amount(cls, v):
-        if v <= 0 or v > 50000:  # Max 50k per transaction
+        if v <= 0 or v > 50000:
             raise ValueError('Amount must be between 0 and 50000')
         return v
 
@@ -60,26 +58,22 @@ class OperationResponse(BaseModel):
 
 
 def mock_card_payment(card_number: str, amount: float) -> bool:
-    time.sleep(1)  # Simulate processing time
+    time.sleep(1)
 
-    # Simulate failure for some test cards
     test_fail_cards = ["4000000000000002", "4000000000000010"]
     if card_number in test_fail_cards:
         return False
 
-    # Random 5% failure rate for realistic simulation
     return random.random() > 0.05
 
 
 def mock_bank_transfer(bank_account: str, amount: float) -> bool:
-    time.sleep(2)  # Simulate processing time
+    time.sleep(2)
 
-    # Simulate failure for some test accounts
     test_fail_accounts = ["IT60X0542811101000000123456"]
     if bank_account in test_fail_accounts:
         return False
 
-    # Random 3% failure rate
     return random.random() > 0.03
 
 
@@ -106,7 +100,6 @@ async def deposit_wallet(
 
     deposit_amount = Decimal(str(deposit.amount))
 
-    # Mock card payment processing
     payment_success = mock_card_payment(deposit.card_number, deposit.amount)
 
     if not payment_success:
@@ -115,13 +108,11 @@ async def deposit_wallet(
             detail="Card payment failed"
         )
 
-    # Generate reference code
     reference_code = f"TOP{uuid.uuid4().hex[:8].upper()}"
 
     try:
-        # Create transaction record (from external system to user wallet)
         transaction = Transaction(
-            from_wallet_id=None,  # Using same wallet as placeholder
+            from_wallet_id=None,
             to_wallet_id=user_wallet.id,
             amount=deposit_amount,
             description=f"Card deposit - **** {deposit.card_number[-4:]}",
@@ -130,14 +121,11 @@ async def deposit_wallet(
             transaction_type="deposit"
         )
 
-        # Update wallet balance
         user_wallet.balance += deposit_amount
         user_wallet.updated_at = datetime.utcnow()
 
-        # Set processed timestamp
         transaction.processed_at = datetime.utcnow()
 
-        # Save to database
         db.add(transaction)
         db.commit()
         db.refresh(transaction)
@@ -164,7 +152,6 @@ async def withdraw_from_wallet(
         current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
 ):
-    # Get user wallet
     user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
     if not user_wallet:
@@ -181,14 +168,12 @@ async def withdraw_from_wallet(
 
     withdraw_amount = Decimal(str(withdraw.amount))
 
-    # Check sufficient balance
     if user_wallet.balance < withdraw_amount:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Insufficient balance"
         )
 
-    # Mock bank transfer processing
     transfer_success = mock_bank_transfer(withdraw.bank_account, withdraw.amount)
 
     if not transfer_success:
@@ -197,11 +182,9 @@ async def withdraw_from_wallet(
             detail="Bank transfer failed"
         )
 
-    # Generate reference code
     reference_code = f"WTH{uuid.uuid4().hex[:8].upper()}"
 
     try:
-        # Create transaction record (from user wallet to external system)
         transaction = Transaction(
             from_wallet_id=user_wallet.id,
             to_wallet_id=None,
@@ -212,14 +195,11 @@ async def withdraw_from_wallet(
             transaction_type="withdraw"
         )
 
-        # Update wallet balance
         user_wallet.balance -= withdraw_amount
         user_wallet.updated_at = datetime.utcnow()
 
-        # Set processed timestamp
         transaction.processed_at = datetime.utcnow()
 
-        # Save to database
         db.add(transaction)
         db.commit()
         db.refresh(transaction)

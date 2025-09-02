@@ -1,4 +1,3 @@
-# src/services/user_service.py
 import uuid
 from sqlalchemy.orm import Session
 from fastapi import HTTPException

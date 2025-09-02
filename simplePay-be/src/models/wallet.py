@@ -15,7 +15,6 @@ class Wallet(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     user = relationship("User", back_populates="wallet")
     sent_transactions = relationship("Transaction", foreign_keys="Transaction.from_wallet_id",
                                      back_populates="from_wallet")

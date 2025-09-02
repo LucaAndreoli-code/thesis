@@ -9,43 +9,10 @@ import sys
 import os
 from pathlib import Path
 
-# Metodo più robusto per trovare la root del progetto
-current_dir = Path(__file__).parent  # cartella alembic/
-root_dir = current_dir.parent        # cartella simplePay-be/
+current_dir = Path(__file__).parent
+root_dir = current_dir.parent
 
-# Aggiungi al Python path
 sys.path.insert(0, str(root_dir))
-
-# Debug del path
-print(f"Current dir: {current_dir}")
-print(f"Root dir: {root_dir}")
-print(f"Python path: {sys.path[0]}")
-
-# Ora prova gli import
-try:
-    from src.models.user import User
-    print("✅ User imported successfully")
-except ImportError as e:
-    print(f"❌ Failed to import User: {e}")
-
-try:
-    from src.models.wallet import Wallet
-    print("✅ Wallet imported successfully")
-except ImportError as e:
-    print(f"❌ Failed to import Wallet: {e}")
-
-try:
-    from src.models.transaction import Transaction
-    print("✅ Transaction imported successfully")
-except ImportError as e:
-    print(f"❌ Failed to import Transaction: {e}")
-
-try:
-    from src.models import Base
-    print("✅ Base imported successfully")
-    print(f"Tables in Base: {list(Base.metadata.tables.keys())}")
-except ImportError as e:
-    print(f"❌ Failed to import Base: {e}")
 
 target_metadata = Base.metadata if 'Base' in locals() else None
 

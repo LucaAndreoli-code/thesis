@@ -1,9 +1,7 @@
-# migration_manager.py
 import os
 import subprocess
 import sys
 
-# Fix import path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import inspect, text
@@ -12,7 +10,6 @@ from src.models import Base
 
 
 def run_command(cmd):
-    # Specifica la directory di lavoro come la directory corrente del script
     cwd = os.path.dirname(os.path.abspath(__file__))
 
     result = subprocess.run(
@@ -20,7 +17,7 @@ def run_command(cmd):
         shell=True,
         capture_output=True,
         text=True,
-        cwd=cwd  # Aggiungi questo
+        cwd=cwd
     )
     output = result.stdout + result.stderr
     return result.returncode == 0, output
@@ -28,13 +25,11 @@ def run_command(cmd):
 def auto_migrate():
     print("Check migrations...")
 
-    # Prima controlla se ci sono differenze senza creare file
     success, output = run_command("alembic check")
     if success:
         print("Database up-to-date, no migrations needed.")
         return True
 
-    # Se alembic check fallisce, significa che ci sono differenze
     print("Found differences, creating migration...")
     success, output = run_command("alembic revision --autogenerate -m 'Auto update'")
 
@@ -44,7 +39,6 @@ def auto_migrate():
 
     if success:
         print("Migration file created.")
-        # Applica migrazione
         success, output = run_command("alembic upgrade head")
         if success:
             print("Migration applied successfully.")
@@ -58,7 +52,6 @@ def auto_migrate():
 
 
 def setup_database():
-    # Test connessione
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
@@ -67,7 +60,6 @@ def setup_database():
         print(f"Connection error: {e}")
         quit()
 
-    # Controlla tabelle
     inspector = inspect(engine)
     tables = inspector.get_table_names()
 

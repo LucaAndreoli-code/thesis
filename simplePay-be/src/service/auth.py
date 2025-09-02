@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from src.service.jwt import JWTService
 from src.models.user import User
-from src.database.database import get_db  # Your database session dependency
+from src.database.database import get_db
 
 security = HTTPBearer()
 
@@ -23,7 +23,6 @@ def get_current_user(
             detail="Invalid token payload"
         )
 
-    # Get user from database
     user = db.query(User).filter(User.id == user_id).first()
 
     if not user:

@@ -1,5 +1,4 @@
 from operator import and_
-
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -151,7 +150,6 @@ async def get_transactions(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-    # Get user's wallet
     wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
     if not wallet:
@@ -159,20 +157,19 @@ async def get_transactions(
 
     query = db.query(Transaction).filter(
         or_(
-            # Caso 1: from_wallet_id = wallet.id AND transaction_type = 'send'
+            # Caso 1: Ho mandato io soldi (send)
             and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "send"),
-            # Caso 2: from_wallet_id = wallet.id AND transaction_type = 'receive'
+            # Caso 2: Ho ricevuto io soldi (receive)
             and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "receive"),
-            # Caso 3: to_wallet_id = wallet.id AND from_wallet_id IS NULL AND transaction_type = 'deposit'
+            # Caso 3: Ho depositato soldi (deposit)
             and_(Transaction.to_wallet_id == wallet.id,
                  and_(Transaction.from_wallet_id.is_(None), Transaction.transaction_type == "deposit")),
-            # Caso 4: from_wallet_id = wallet.id AND to_wallet_id IS NULL AND transaction_type = 'withdraw'
+            # Caso 4: Ho prelevato soldi (withdraw)
             and_(Transaction.from_wallet_id == wallet.id,
                  and_(Transaction.to_wallet_id.is_(None), Transaction.transaction_type == "withdraw"))
         )
     )
 
-    # Applica filtro di ricerca se fornito
     if search:
         search_term = f"%{search}%"
         query = query.filter(
@@ -183,7 +180,6 @@ async def get_transactions(
             )
         )
 
-    # Applica filtri per data se forniti
     if start_date:
         query = query.filter(Transaction.created_at >= start_date)
     if end_date:
@@ -196,6 +192,6 @@ async def get_transactions(
         "data": transactions,
         "page": page,
         "page_size": page_size,
-        "total": total,  # Usa il count dei risultati filtrati
+        "total": total,
         "total_pages": (total + page_size) // page_size
     }
