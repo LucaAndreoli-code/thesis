@@ -23,20 +23,6 @@ app.add_middleware(
 
 app.include_router(router)
 
-
-@app.get("/")
-def read_root():
-    return {"message": "Simple Pay API"}
-
-@app.get("/health")
-def health_check():
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return {"status": "healthy"}
-    except:
-        return {"status": "error"}
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
