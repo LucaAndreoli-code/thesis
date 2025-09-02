@@ -1,7 +1,7 @@
 <template>
   <dialog id="sendModal" class="modal">
     <div class="modal-box">
-      <form method="dialog" @submit.prevent="sendMoney">
+      <form method="dialog" @submit.prevent="withLoading(sendMoney)">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-medium">Invia denaro</h2>
           <button type="button" class="btn btn-sm btn-circle" onclick="sendModal.close()">✕</button>
@@ -66,7 +66,7 @@
 import type { SendMoneyRequest } from '@/api/payments'
 import payments from '@/api/payments'
 import { notify } from '@/service/alert'
-import { isLoading } from '@/service/loading'
+import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
 const form = ref<SendMoneyRequest>({
