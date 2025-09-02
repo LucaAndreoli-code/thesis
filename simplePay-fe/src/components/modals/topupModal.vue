@@ -120,6 +120,8 @@ import { notify } from '@/service/alert'
 import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
+const emit = defineEmits(['refresh'])
+
 const form = ref<DepositRequest>({
   amount: null,
   card_number: '',
@@ -138,6 +140,19 @@ const topupMoney = async () => {
   } finally {
     const topupModal = document.getElementById('topupModal') as HTMLDialogElement
     topupModal.close()
+    clearForm()
+  }
+}
+
+const clearForm = () => {
+  emit('refresh')
+  form.value = {
+    amount: null,
+    card_number: '',
+    card_holder: '',
+    expiry_month: null,
+    expiry_year: null,
+    cvv: ''
   }
 }
 </script>

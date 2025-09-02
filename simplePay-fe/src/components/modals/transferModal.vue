@@ -76,6 +76,8 @@ import { notify } from '@/service/alert'
 import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
+const emit = defineEmits(['refresh'])
+
 const form = ref<WithdrawRequest>({
   amount: null,
   bank_account: '',
@@ -91,6 +93,16 @@ const transferMoney = async () => {
   } finally {
     const transferModal = document.getElementById('transferModal') as HTMLDialogElement
     transferModal.close()
+    clearForm()
+  }
+}
+
+const clearForm = () => {
+  emit('refresh')
+  form.value = {
+    amount: null,
+    bank_account: '',
+    back_account_name: ''
   }
 }
 </script>

@@ -129,9 +129,9 @@
     </section>
   </div>
 
-  <SendModal id="sendModal" />
-  <TopupModal id="topupModal" />
-  <TransferModal id="transferModal" />
+  <SendModal id="sendModal" @refresh="getUserInformations" />
+  <TopupModal id="topupModal" @refresh="getUserInformations" />
+  <TransferModal id="transferModal" @refresh="getUserInformations" />
 </template>
 
 <script setup lang="ts">
@@ -158,8 +158,7 @@ const handleLogout = async () => {
 
 onMounted(() => {
   userInformation.value = getTokenInfo()
-  getUserTransactions()
-  getUserBalance()
+  getUserInformations()
 })
 
 const changePage = (newPage: number) => {
@@ -183,6 +182,11 @@ const getUserTransactions = async () => {
   } catch (error) {
     console.error('Error fetching transactions:', error)
   }
+}
+
+const getUserInformations = () => {
+  getUserTransactions()
+  getUserBalance()
 }
 
 onUnmounted(() => {})

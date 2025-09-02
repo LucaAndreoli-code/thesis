@@ -69,6 +69,8 @@ import { notify } from '@/service/alert'
 import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 
+const emit = defineEmits(['refresh'])
+
 const form = ref<SendMoneyRequest>({
   amount: null,
   to_user_email: '',
@@ -84,6 +86,16 @@ const sendMoney = async () => {
   } finally {
     const sendModal = document.getElementById('sendModal') as HTMLDialogElement
     sendModal.close()
+    clearForm()
+  }
+}
+
+const clearForm = () => {
+  emit('refresh')
+  form.value = {
+    amount: null,
+    to_user_email: '',
+    description: ''
   }
 }
 </script>
