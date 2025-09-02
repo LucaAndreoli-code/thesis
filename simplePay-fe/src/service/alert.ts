@@ -13,5 +13,4 @@ export function notify(type: Alert['type'], message: string) {
   setTimeout(() => {
     alert.value.message = ''
   }, 3000)
-  console.log(alert.value)
 }

@@ -178,7 +178,6 @@ const getUserBalance = async () => {
 const getUserTransactions = async () => {
   try {
     userTransactions.value = await payments.getTransactions(page.value, pageSize.value)
-    console.log('User transactions:', userTransactions.value)
   } catch (error) {
     console.error('Error fetching transactions:', error)
   }
@@ -188,8 +187,6 @@ const getUserInformations = () => {
   getUserTransactions()
   getUserBalance()
 }
-
-onUnmounted(() => {})
 </script>
 
 <style scoped>
