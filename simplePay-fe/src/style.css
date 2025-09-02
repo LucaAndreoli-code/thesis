@@ -7,3 +7,7 @@ html {
     color: #212529;
     line-height: 1.5;
 }
+
+.min-h-screen {
+    background: linear-gradient(45deg, #141414 0%, #141414 50%, #f8f9fa 50%);
+}

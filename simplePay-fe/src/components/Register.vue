@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center">
+  <div class="min-h-screen flex flex-col items-center justify-center">
+    <h1 class="text-4xl font-bold mb-8 text-black">Simple Pay</h1>
     <div class="w-96 p-8 card bg-base-100 border border-base-300 shadow-md p-6 text-center">
       <h2 class="text-2xl font-light text-center mb-8 text-black">Registrazione</h2>
 
@@ -54,7 +55,11 @@
           />
         </div>
 
-        <button :disabled="isLoading" type="submit" class="btn bg-black text-white w-full hover:bg-gray-800">
+        <button
+          :disabled="isLoading"
+          type="submit"
+          class="btn bg-black text-white w-full hover:bg-gray-800"
+        >
           <span class="loading loading-dots" v-if="isLoading"></span>
           Registrati
         </button>
