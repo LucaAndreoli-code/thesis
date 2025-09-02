@@ -1,3 +1,5 @@
+from typing import Any, Coroutine
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, field_validator
@@ -12,7 +14,7 @@ from src.models.wallet import Wallet
 from src.models.transaction import Transaction
 from src.service.auth import get_current_user
 
-router = APIRouter(prefix="/api/wallet", tags=["Wallet"])
+router = APIRouter(prefix="/wallet", tags=["Wallet"])
 
 class DepositRequest(BaseModel):
     amount: float
@@ -236,3 +238,25 @@ async def withdraw_from_wallet(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Withdrawal failed"
         )
+
+class BalanceResponse(BaseModel):
+    balance: Decimal
+    currency: str
+
+@router.get("/balance", response_model=BalanceResponse)
+async def get_wallet_balance(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+
+    if not user_wallet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Wallet not found"
+        )
+
+    return {
+        "balance": user_wallet.balance,
+        "currency": user_wallet.currency
+    }

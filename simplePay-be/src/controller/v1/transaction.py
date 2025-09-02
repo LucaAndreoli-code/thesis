@@ -8,7 +8,6 @@ from decimal import Decimal
 from datetime import datetime
 import uuid
 from typing import Optional
-
 from src.database.database import get_db  # Your database session dependency
 from src.models import User
 from src.models.wallet import Wallet

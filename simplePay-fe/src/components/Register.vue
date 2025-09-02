@@ -7,8 +7,18 @@
         <div>
           <input
             type="text"
-            v-model="name"
-            placeholder="Nome completo"
+            v-model="form.first_name"
+            placeholder="Nome"
+            class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
+            required
+          />
+        </div>
+
+        <div>
+          <input
+            type="text"
+            v-model="form.last_name"
+            placeholder="Cognome"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
           />
@@ -17,7 +27,7 @@
         <div>
           <input
             type="email"
-            v-model="email"
+            v-model="form.email"
             placeholder="Email"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
@@ -27,7 +37,7 @@
         <div>
           <input
             type="password"
-            v-model="password"
+            v-model="form.password"
             placeholder="Password"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
@@ -37,7 +47,7 @@
         <div>
           <input
             type="password"
-            v-model="confirmPassword"
+            v-model="form.confirmPassword"
             placeholder="Conferma Password"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
@@ -58,28 +68,35 @@
 </template>
 
 <script setup lang="ts">
+import auth from '@/api/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const form = ref({
+  first_name: '',
+  last_name: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
 
-const handleRegister = () => {
-  if (password.value !== confirmPassword.value) {
+const handleRegister = async () => {
+  if (form.value.password !== form.value.confirmPassword) {
     alert('Le password non coincidono!')
     return
   }
 
-  console.log('Register:', { name: name.value, email: email.value })
-
-  if (email.value && password.value) {
-    localStorage.setItem('userToken', 'fake-jwt-token')
-    localStorage.setItem('userEmail', email.value)
-    localStorage.setItem('userName', name.value)
-    router.push('/home')
+  try {
+    await auth.register(
+      form.value.first_name,
+      form.value.last_name,
+      form.value.email,
+      form.value.password
+    )
+    router.push('/login')
+  } catch (error) {
+    console.error('Registration failed:', error)
   }
 }
 </script>

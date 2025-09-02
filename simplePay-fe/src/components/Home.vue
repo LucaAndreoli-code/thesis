@@ -4,7 +4,11 @@
     <header class="flex justify-between items-center py-8 border-b border-base-300 mb-8">
       <div class="text-2xl font-semibold">Simple Pay</div>
       <div class="flex items-center gap-2">
-        <div class="text-base">Mario Rossi</div>
+        <div class="">
+          <div class="text-base text-right">{{ userInformation?.email }}</div>
+          <div class="text-base text-sm text-right">{{ userInformation?.username }}</div>
+        </div>
+        <div class="h-8 w-px bg-base-300 mx-2"></div>
         <button class="btn btn-ghost btn-sm px-2" @click="handleLogout" title="Logout">
           <span class="text-base text-sm">Logout</span>
         </button>
@@ -15,7 +19,8 @@
     <section class="text-center mb-12">
       <div class="text-sm text-base-content/70 mb-2">Saldo disponibile</div>
       <div class="text-5xl font-light text-base-content">
-        2.543<span class="text-base-content/70">,21 €</span>
+        {{ userBalance?.balance
+        }}<span class="text-base-content/70">&nbsp;{{ userBalance?.currency }}</span>
       </div>
     </section>
 
@@ -23,7 +28,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
       <div
         class="card bg-base-100 border border-base-300 hover:border-base-content hover:shadow-md cursor-pointer p-6 text-center"
-        onclick="openModal('sendModal')"
+        onclick="sendModal.showModal()"
       >
         <span class="text-3xl mb-4 block">↗</span>
         <div class="font-medium mb-2">Invia</div>
@@ -32,7 +37,7 @@
 
       <div
         class="card bg-base-100 border border-base-300 hover:border-base-content hover:shadow-md cursor-pointer p-6 text-center"
-        onclick="openModal('topupModal')"
+        onclick="topupModal.showModal()"
       >
         <span class="text-3xl mb-4 block">+</span>
         <div class="font-medium mb-2">Ricarica</div>
@@ -41,7 +46,7 @@
 
       <div
         class="card bg-base-100 border border-base-300 hover:border-base-content hover:shadow-md cursor-pointer p-6 text-center"
-        onclick="openModal('transferModal')"
+        onclick="transferModal.showModal()"
       >
         <span class="text-3xl mb-4 block">→</span>
         <div class="font-medium mb-2">Bonifico</div>
@@ -53,222 +58,103 @@
     <section class="card bg-base-100 border border-base-300 p-6">
       <h2 class="text-lg font-medium mb-6 text-base-content">Transazioni recenti</h2>
 
-      <div class="flex justify-between items-center py-4 border-b border-base-200">
-        <div class="flex items-center">
-          <div
-            class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
-          >
-            ↙
+      <div v-if="userTransactions && userTransactions.transactions?.length > 0">
+        <div
+          v-for="transaction in userTransactions.transactions"
+          :key="transaction.id"
+          class="flex justify-between items-center py-4 border-b border-base-200"
+          :class="{
+            'border-b-0':
+              userTransactions.transactions.indexOf(transaction) ===
+              userTransactions.transactions.length - 1
+          }"
+        >
+          <div class="flex items-center">
+            <div
+              class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
+            >
+              {{
+                transaction.type === 'receive' ? '↙' : transaction.type === 'deposit' ? '+' : '↗'
+              }}
+            </div>
+            <div>
+              <h4 class="text-sm font-medium mb-1">{{ transaction.description }}</h4>
+              <p class="text-xs text-base-content/70">
+                {{
+                  new Date(transaction.created_at).toLocaleString('it-IT', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                  })
+                }}
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 class="text-sm font-medium mb-1">Da Giulia Bianchi</h4>
-            <p class="text-xs text-base-content/70">Oggi, 14:32</p>
+          <div
+            class="text-sm font-medium"
+            :class="
+              ['receive', 'deposit'].includes(transaction.type) ? 'text-success' : 'text-error'
+            "
+          >
+            {{ ['receive', 'deposit'].includes(transaction.type) ? '+' : '-'
+            }}{{ transaction.amount.toFixed(2) }} {{ transaction.currency }}
           </div>
         </div>
-        <div class="text-sm font-medium text-success">+150,00 €</div>
       </div>
-
-      <div class="flex justify-between items-center py-4 border-b border-base-200">
-        <div class="flex items-center">
-          <div
-            class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
-          >
-            ↗
-          </div>
-          <div>
-            <h4 class="text-sm font-medium mb-1">A Marco Verdi</h4>
-            <p class="text-xs text-base-content/70">Ieri, 19:45</p>
-          </div>
-        </div>
-        <div class="text-sm font-medium text-error">-75,50 €</div>
-      </div>
-
-      <div class="flex justify-between items-center py-4">
-        <div class="flex items-center">
-          <div
-            class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
-          >
-            +
-          </div>
-          <div>
-            <h4 class="text-sm font-medium mb-1">Ricarica carta</h4>
-            <p class="text-xs text-base-content/70">2 giorni fa</p>
-          </div>
-        </div>
-        <div class="text-sm font-medium text-success">+500,00 €</div>
+      <div v-else class="py-4 text-center text-base-content/70">
+        Nessuna transazione disponibile
       </div>
     </section>
   </div>
 
-  <!-- Send Money Modal -->
-  <div id="sendModal" class="modal">
-    <div class="modal-box">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-medium">Invia denaro</h2>
-        <button class="btn btn-sm btn-circle" onclick="closeModal('sendModal')">✕</button>
-      </div>
-
-      <form>
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Destinatario</span>
-          </label>
-          <input
-            type="text"
-            class="input input-bordered w-full"
-            placeholder="Email, telefono o nome"
-          />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Importo</span>
-          </label>
-          <input type="number" class="input input-bordered w-full" placeholder="0,00" step="0.01" />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Messaggio (opzionale)</span>
-          </label>
-          <input type="text" class="input input-bordered w-full" placeholder="Aggiungi una nota" />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full">Invia</button>
-        <button type="button" class="btn w-full mt-4" onclick="closeModal('sendModal')">
-          Annulla
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Remaining modals converted to DaisyUI -->
-  <!-- Receive Money Modal -->
-  <div id="receiveModal" class="modal">
-    <div class="modal-box">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-medium">Richiedi denaro</h2>
-        <button class="btn btn-sm btn-circle" onclick="closeModal('receiveModal')">✕</button>
-      </div>
-
-      <form>
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Da</span>
-          </label>
-          <input
-            type="text"
-            class="input input-bordered w-full"
-            placeholder="Email, telefono o nome"
-          />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Importo</span>
-          </label>
-          <input type="number" class="input input-bordered w-full" placeholder="0,00" step="0.01" />
-        </div>
-
-        <div class="form-control mb-4">
-          <label class="label">
-            <span class="label-text font-medium">Motivo</span>
-          </label>
-          <input
-            type="text"
-            class="input input-bordered w-full"
-            placeholder="Descrizione della richiesta"
-          />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full">Invia richiesta</button>
-        <button type="button" class="btn w-full mt-4" onclick="closeModal('receiveModal')">
-          Annulla
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Additional modals follow the same pattern -->
-  <!-- Remember to include daisyUI in your project setup -->
+  <SendModal id="sendModal" />
+  <TopupModal id="topupModal" />
+  <TransferModal id="transferModal" />
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import TransferModal from './modals/transferModal.vue'
+import TopupModal from './modals/topupModal.vue'
+import SendModal from './modals/sendModal.vue'
+import { getTokenInfo, type TokenInformations } from '@/service/jwt'
+import payments, { type Transaction } from '@/api/payments'
+import wallet, { type Balance } from '@/api/wallet'
 
 const router = useRouter()
-const handleLogout = () => {
+const userTransactions = ref<Transaction | null>(null)
+const userBalance = ref<Balance | null>(null)
+const page = ref(1)
+const pageSize = ref(10)
+
+const userInformation = ref<TokenInformations | null>(null)
+const handleLogout = async () => {
   localStorage.removeItem('userToken')
-  localStorage.removeItem('userEmail')
-  localStorage.removeItem('userName')
-  router.push('/login')
-}
-
-// Funzione per aprire una modale
-function openModal(modalId: string) {
-  const modal = document.getElementById(modalId)
-  if (modal) {
-    modal.classList.add('active')
-    document.body.style.overflow = 'hidden'
-  }
-}
-
-// Funzione per chiudere una modale
-function closeModal(modalId: string) {
-  const modal = document.getElementById(modalId)
-  if (modal) {
-    modal.classList.remove('active')
-    document.body.style.overflow = 'auto'
-  }
-}
-
-// Funzione per mostrare un tab (se usato)
-function showTab(tabId: string, event: Event) {
-  const tabs = document.querySelectorAll('.tab')
-  const tabContents = document.querySelectorAll('.tab-content')
-  tabs.forEach((tab) => tab.classList.remove('active'))
-  tabContents.forEach((content) => content.classList.remove('active'))
-  if (event.target instanceof HTMLElement) {
-    event.target.classList.add('active')
-  }
-  const tab = document.getElementById(tabId)
-  if (tab) tab.classList.add('active')
-}
-
-// Listener per chiudere la modale cliccando fuori
-function handleWindowClick(event: MouseEvent) {
-  if (event.target instanceof HTMLElement && event.target.classList.contains('modal')) {
-    event.target.classList.remove('active')
-    document.body.style.overflow = 'auto'
-  }
-}
-
-// Formatter per numero carta e data scadenza
-function handleInputFormat(e: Event) {
-  const target = e.target as HTMLInputElement
-  if (!target) return
-  if (target.placeholder === '1234 5678 9012 3456') {
-    let value = target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '')
-    let formattedValue = value.match(/.{1,4}/g)?.join(' ')
-    target.value = formattedValue || value
-  }
-  if (target.placeholder === 'MM/AA') {
-    let value = target.value.replace(/\D/g, '')
-    if (value.length >= 2) {
-      value = value.substring(0, 2) + '/' + value.substring(2, 4)
-    }
-    target.value = value
-  }
+  await router.push('/login')
 }
 
 onMounted(() => {
-  window.addEventListener('click', handleWindowClick)
-  document.addEventListener('input', handleInputFormat)
+  userInformation.value = getTokenInfo()
+  getUserTransactions()
+  getUserBalance()
 })
 
-onUnmounted(() => {
-  window.removeEventListener('click', handleWindowClick)
-  document.removeEventListener('input', handleInputFormat)
-})
+const getUserBalance = async () => {
+  try {
+    userBalance.value = await wallet.getBalance()
+  } catch (error) {
+    console.error('Error fetching balance:', error)
+  }
+}
+
+const getUserTransactions = async () => {
+  try {
+    userTransactions.value = await payments.getTransactions(page.value, pageSize.value)
+    console.log('User transactions:', userTransactions.value)
+  } catch (error) {
+    console.error('Error fetching transactions:', error)
+  }
+}
+
+onUnmounted(() => {})
 </script>

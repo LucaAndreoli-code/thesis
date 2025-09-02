@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import auth from '@/api/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -48,13 +49,18 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
   console.log('Login:', email.value, password.value)
 
   if (email.value && password.value) {
-    localStorage.setItem('userToken', 'fake-jwt-token')
-    localStorage.setItem('userEmail', email.value)
-    router.push('/home')
+    try {
+      const res = await auth.login(email.value, password.value)
+      localStorage.setItem('userToken', res.access_token)
+
+      await router.push('/home')
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
   }
 }
 </script>
