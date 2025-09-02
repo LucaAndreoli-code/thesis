@@ -7,13 +7,12 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
-    from_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=False)
-    to_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=False)
+    from_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=True)
+    to_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=True)
     amount = Column(DECIMAL(15, 2), nullable=False)
     currency = Column(String(3), default="EUR")
     description = Column(String(255))
-    reference_code = Column(String(50), unique=True, nullable=False, index=True)
-    parent_reference_code = Column(String(50), nullable=True) # For linking related transactions
+    reference_code = Column(String(50), unique=False, nullable=False, index=True)
     status = Column(String(20), default="pending")  # pending, completed, failed
     created_at = Column(DateTime, default=datetime.utcnow)
     processed_at = Column(DateTime)

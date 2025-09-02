@@ -121,7 +121,7 @@ async def deposit_wallet(
     try:
         # Create transaction record (from external system to user wallet)
         transaction = Transaction(
-            from_wallet_id=user_wallet.id,  # Using same wallet as placeholder
+            from_wallet_id=None,  # Using same wallet as placeholder
             to_wallet_id=user_wallet.id,
             amount=deposit_amount,
             description=f"Card deposit - **** {deposit.card_number[-4:]}",
@@ -204,7 +204,7 @@ async def withdraw_from_wallet(
         # Create transaction record (from user wallet to external system)
         transaction = Transaction(
             from_wallet_id=user_wallet.id,
-            to_wallet_id=user_wallet.id,  # Using same wallet as placeholder
+            to_wallet_id=None,
             amount=withdraw_amount,
             description=f"Bank withdrawal - {withdraw.back_account_name}",
             reference_code=reference_code,

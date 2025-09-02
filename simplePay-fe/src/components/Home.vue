@@ -58,15 +58,14 @@
     <section class="card bg-base-100 border border-base-300 p-6">
       <h2 class="text-lg font-medium mb-6 text-base-content">Transazioni recenti</h2>
 
-      <div v-if="userTransactions && userTransactions.transactions?.length > 0">
+      <div v-if="userTransactions && userTransactions.data?.length > 0">
         <div
-          v-for="transaction in userTransactions.transactions"
+          v-for="transaction in userTransactions.data"
           :key="transaction.id"
           class="flex justify-between items-center py-4 border-b border-base-200"
           :class="{
             'border-b-0':
-              userTransactions.transactions.indexOf(transaction) ===
-              userTransactions.transactions.length - 1
+              userTransactions.data.indexOf(transaction) === userTransactions.data.length - 1
           }"
         >
           <div class="flex items-center">
@@ -74,28 +73,29 @@
               class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
             >
               {{
-                transaction.type === 'receive' ? '↙' : transaction.type === 'deposit' ? '+' : '↗'
+                transaction.transaction_type === 'receive'
+                  ? '↙'
+                  : transaction.transaction_type === 'deposit'
+                  ? '+'
+                  : '↗'
               }}
             </div>
             <div>
               <h4 class="text-sm font-medium mb-1">{{ transaction.description }}</h4>
               <p class="text-xs text-base-content/70">
-                {{
-                  new Date(transaction.created_at).toLocaleString('it-IT', {
-                    dateStyle: 'medium',
-                    timeStyle: 'short'
-                  })
-                }}
+                {{ new Date(transaction.created_at).toLocaleString() }}
               </p>
             </div>
           </div>
           <div
             class="text-sm font-medium"
             :class="
-              ['receive', 'deposit'].includes(transaction.type) ? 'text-success' : 'text-error'
+              ['receive', 'deposit'].includes(transaction.transaction_type)
+                ? 'text-success'
+                : 'text-error'
             "
           >
-            {{ ['receive', 'deposit'].includes(transaction.type) ? '+' : '-'
+            {{ ['receive', 'deposit'].includes(transaction.transaction_type) ? '+' : '-'
             }}{{ transaction.amount.toFixed(2) }} {{ transaction.currency }}
           </div>
         </div>
@@ -103,7 +103,7 @@
         <!-- Pagination -->
         <div class="flex justify-between items-center mt-6">
           <span class="text-sm text-base-content/70">
-            Pagina {{ page }} di {{ userTransactions.pagination.total_pages || 1 }}
+            Pagina {{ page }} di {{ userTransactions.total_pages || 1 }}
           </span>
           <div class="flex gap-2">
             <button
@@ -115,7 +115,7 @@
             </button>
             <button
               class="btn btn-sm btn-outline"
-              :disabled="page >= (userTransactions.pagination.total_pages || 1)"
+              :disabled="page >= (userTransactions.total_pages || 1)"
               @click="changePage(page + 1)"
             >
               Successiva
@@ -141,11 +141,11 @@ import TransferModal from './modals/transferModal.vue'
 import TopupModal from './modals/topupModal.vue'
 import SendModal from './modals/sendModal.vue'
 import { getTokenInfo, type TokenInformations } from '@/service/jwt'
-import payments, { type Transaction } from '@/api/payments'
+import payments, { type Paginated, type Transaction } from '@/api/payments'
 import wallet, { type Balance } from '@/api/wallet'
 
 const router = useRouter()
-const userTransactions = ref<Transaction | null>(null)
+const userTransactions = ref<Paginated<Transaction> | null>(null)
 const userBalance = ref<Balance | null>(null)
 const page = ref(1)
 const pageSize = ref(10)

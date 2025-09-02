@@ -84,8 +84,8 @@ async def create_payment(
             detail="Insufficient balance"
         )
 
-        # Generate reference code
-    reference_code_from = f"PAY{uuid.uuid4().hex[:8].upper()}"
+    # Generate reference code
+    reference_code = f"PAY{uuid.uuid4().hex[:8].upper()}"
 
     try:
         # Create transaction
@@ -94,9 +94,19 @@ async def create_payment(
             to_wallet_id=to_wallet.id,
             amount=payment_amount,
             description=payment.description or f"Payment to {to_wallet.wallet_number}",
-            reference_code=reference_code_from,
+            reference_code=reference_code,
             status="completed",
             transaction_type="send"
+        )
+
+        transaction_user_to = Transaction(
+            from_wallet_id=to_wallet.id,
+            to_wallet_id=from_wallet.id,
+            amount=payment_amount,
+            description=payment.description or f"Receiving from {from_wallet.wallet_number}",
+            reference_code=reference_code,
+            status="completed",
+            transaction_type="receive"
         )
 
         # Update balances
@@ -110,32 +120,18 @@ async def create_payment(
 
         # Save to database
         db.add(transaction_user_from)
-        db.commit()
-        db.refresh(transaction_user_from)
-
-        reference_code_to = f"PAY{uuid.uuid4().hex[:8].upper()}"
-
-        transaction_user_to = Transaction(
-            from_wallet_id=to_wallet.id,
-            to_wallet_id=from_wallet.id,
-            amount=payment_amount,
-            description=payment.description or f"Receiving from {from_wallet.wallet_number}",
-            reference_code=reference_code_to,
-            parent_reference_code=reference_code_from,
-            status="completed",
-            transaction_type="receive"
-        )
-
-        # Save to database
         db.add(transaction_user_to)
         db.commit()
         db.refresh(transaction_user_to)
+        db.refresh(transaction_user_from)
 
         return PaymentResponse(
-            reference_code=reference_code_from,
+            reference_code=reference_code,
             status="completed",
             message="Payment completed successfully"
         )
+
+
 
     except Exception as e:
         db.rollback()
@@ -148,7 +144,7 @@ async def create_payment(
 @router.get("/transactions")
 async def get_transactions(
         page: int = Query(1, ge=1),
-        limit: int = Query(10, ge=1, le=100),
+        page_size: int = Query(10, ge=1, le=100),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
@@ -158,68 +154,28 @@ async def get_transactions(
     if not wallet:
         raise HTTPException(status_code=404, detail="Wallet not found")
 
-    # Query for user's transactions
-    offset = (page - 1) * limit
-
-    transactions = db.query(Transaction).filter(
+    query = db.query(Transaction).filter(
         or_(
-            Transaction.from_wallet_id == wallet.id,
-            Transaction.to_wallet_id == wallet.id
+            # Caso 1: from_wallet_id = wallet.id AND transaction_type = 'send'
+            and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "send"),
+            # Caso 2: from_wallet_id = wallet.id AND transaction_type = 'receive'
+            and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "receive"),
+            # Caso 3: to_wallet_id = wallet.id AND from_wallet_id IS NULL AND transaction_type = 'deposit'
+            and_(Transaction.to_wallet_id == wallet.id,
+                 and_(Transaction.from_wallet_id.is_(None), Transaction.transaction_type == "deposit")),
+            # Caso 4: from_wallet_id = wallet.id AND to_wallet_id IS NULL AND transaction_type = 'withdraw'
+            and_(Transaction.from_wallet_id == wallet.id,
+                 and_(Transaction.to_wallet_id.is_(None), Transaction.transaction_type == "withdraw"))
         )
-    ).order_by(Transaction.created_at.desc()).offset(offset).limit(limit).all()
+    )
 
-    # Count total for pagination
-    total = db.query(Transaction).filter(
-        or_(
-            Transaction.from_wallet_id == wallet.id,
-            Transaction.to_wallet_id == wallet.id
-        )
-    ).count()
-
-    # Format transactions based on type and user perspective
-    formatted_transactions = []
-    processed_references = set()
-
-    for tx in transactions:
-        # Skip if already processed
-        if tx.reference_code in processed_references:
-            continue
-
-        # Determina il tipo di transazione dal punto di vista dell'utente
-        if tx.transaction_type == "deposit":
-            transaction_type = "deposit"
-        elif tx.transaction_type == "withdraw":
-            transaction_type = "withdraw"
-        elif tx.from_wallet_id == wallet.id and tx.to_wallet_id != wallet.id:
-            # L'utente ha inviato soldi
-            transaction_type = "send"
-        elif tx.to_wallet_id == wallet.id and tx.from_wallet_id != wallet.id:
-            # L'utente ha ricevuto soldi
-            transaction_type = "receive"
-        else:
-            continue  # Skip transazioni anomale
-
-        formatted_transactions.append({
-            "id": tx.id,
-            "type": transaction_type,
-            "amount": abs(tx.amount),  # Sempre positivo, il tipo indica la direzione
-            "currency": tx.currency,
-            "description": tx.description,
-            "reference_code": tx.reference_code,
-            "status": tx.status,
-            "created_at": tx.created_at,
-            "processed_at": tx.processed_at
-        })
-
-        # Marca il reference_code come processato
-        processed_references.add(tx.reference_code)
+    total = query.count()
+    transactions = query.order_by(Transaction.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
 
     return {
-        "transactions": formatted_transactions,
-        "pagination": {
-            "page": page,
-            "limit": limit,
-            "total": len(formatted_transactions),  # Usa il count dei risultati filtrati
-            "total_pages": (len(formatted_transactions) + limit) // limit
-        }
+        "data": transactions,
+        "page": page,
+        "page_size": page_size,
+        "total": total,  # Usa il count dei risultati filtrati
+        "total_pages": (total + page_size) // page_size
     }

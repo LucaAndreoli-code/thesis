@@ -7,33 +7,22 @@ export interface SendMoneyRequest {
 }
 
 export interface Paginated<T> {
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    total_pages: number
-  }
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
   data: T[]
 }
 
 export interface Transaction {
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    total_pages: number
-  }
-  transactions: {
-    id: number
-    amount: number
-    currency: string
-    description: string
-    reference_code: string
-    status: string
-    type: 'send' | 'receive' | 'withdraw' | 'deposit'
-    created_at: string
-    processed_at: string | null
-  }[]
+  id: number
+  amount: number
+  currency: string
+  description: string
+  reference_code: string
+  status: string
+  transaction_type: 'send' | 'receive' | 'withdraw' | 'deposit'
+  created_at: string
 }
 
 export default {
@@ -52,7 +41,7 @@ export default {
     }
     return response.text()
   },
-  async getTransactions(page: number, pageSize: number): Promise<Transaction> {
+  async getTransactions(page: number, pageSize: number): Promise<Paginated<Transaction>> {
     const response = await fetch(
       `${
         import.meta.env.VITE_APP_BASE_URL
@@ -69,6 +58,6 @@ export default {
       notify('error', 'Errore durante il recupero delle transazioni. Riprova più tardi.')
       throw new Error('Fetching transactions failed')
     }
-    return response.json() as Promise<Transaction>
+    return response.json() as Promise<Paginated<Transaction>>
   }
 }
