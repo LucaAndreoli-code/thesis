@@ -57,7 +57,9 @@
     <!-- Transaction History -->
     <section class="card bg-base-100 border border-base-300 p-6">
       <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-        <h2 class="text-lg font-medium text-base-content">Transazioni recenti</h2>
+        <h2 class="text-lg font-medium text-base-content">
+          Transazioni recenti <span class="loading loading-dots loading-sm" v-if="isLoading"></span>
+        </h2>
         <div class="flex flex-wrap gap-2">
           <div class="form-control max-w-xs">
             <input
@@ -73,7 +75,7 @@
               <input
                 type="date"
                 v-model="startDate"
-                @change="getUserTransactions"
+                @change="withLoading(getUserTransactions)"
                 class="input input-bordered input-sm"
               />
             </div>
@@ -81,7 +83,7 @@
               <input
                 type="date"
                 v-model="endDate"
-                @change="getUserTransactions"
+                @change="withLoading(getUserTransactions)"
                 class="input input-bordered input-sm"
               />
             </div>
@@ -174,6 +176,7 @@ import SendModal from './modals/sendModal.vue'
 import { getTokenInfo, type TokenInformations } from '@/service/jwt'
 import payments, { type Paginated, type Transaction } from '@/api/payments'
 import wallet, { type Balance } from '@/api/wallet'
+import { isLoading, startLoading, stopLoading, withLoading } from '@/service/loading'
 
 const router = useRouter()
 const userTransactions = ref<Paginated<Transaction> | null>(null)
@@ -227,9 +230,11 @@ const getUserTransactions = async () => {
 const debounceSearch = (() => {
   let timeout: ReturnType<typeof setTimeout>
   return () => {
+    startLoading()
     clearTimeout(timeout)
     timeout = setTimeout(() => {
       page.value = 1
+      stopLoading()
       getUserTransactions()
     }, 500)
   }
