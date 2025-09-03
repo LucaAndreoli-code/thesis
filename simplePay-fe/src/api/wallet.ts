@@ -20,8 +20,8 @@ export default {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/wallet/balance`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
+        'Content-Type': 'application/json'
+        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       }
     })
     if (!response.ok) {
@@ -34,8 +34,8 @@ export default {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/wallet/deposit`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
+        'Content-Type': 'application/json'
+        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       },
       body: JSON.stringify(body)
     })
@@ -52,8 +52,8 @@ export default {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/wallet/withdraw`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
+        'Content-Type': 'application/json'
+        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       },
       body: JSON.stringify(body)
     })
