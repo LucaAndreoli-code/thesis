@@ -92,7 +92,7 @@ async def create_payment(
             from_wallet_id=from_wallet.id,
             to_wallet_id=to_wallet.id,
             amount=payment_amount,
-            description=payment.description or f"Payment to {to_wallet.wallet_number}",
+            description=f"Payment to {payment.to_user_email}",
             reference_code=reference_code,
             status="completed",
             transaction_type="send"
@@ -102,7 +102,7 @@ async def create_payment(
             from_wallet_id=to_wallet.id,
             to_wallet_id=from_wallet.id,
             amount=payment_amount,
-            description=payment.description or f"Receiving from {from_wallet.wallet_number}",
+            description=f"Receiving from {current_user.email}",
             reference_code=reference_code,
             status="completed",
             transaction_type="receive"

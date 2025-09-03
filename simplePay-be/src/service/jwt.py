@@ -15,7 +15,7 @@ class JWTService:
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "exp": datetime.utcnow() + timedelta(minutes=120),
+                "exp": datetime.utcnow() + timedelta(hours=2),
                 "iat": datetime.utcnow()
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
