@@ -26,13 +26,3 @@ class User(Base):
 
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "created_at": self.created_at.isoformat() if self.created_at else None
-        }

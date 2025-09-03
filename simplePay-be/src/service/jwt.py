@@ -5,7 +5,6 @@ from src.config.config import SECRET_KEY
 
 
 class JWTService:
-
     @staticmethod
     def generate_token(user) -> str:
         try:

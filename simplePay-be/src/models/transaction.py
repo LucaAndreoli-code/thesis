@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 from datetime import datetime
 from .base import Base
 
@@ -15,7 +15,6 @@ class Transaction(Base):
     reference_code = Column(String(50), unique=False, nullable=False, index=True)
     status = Column(String(20), default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
-    processed_at = Column(DateTime)
     transaction_type = Column(String(20), nullable=True)
 
     from_wallet = relationship("Wallet", foreign_keys=[from_wallet_id], back_populates="sent_transactions")
