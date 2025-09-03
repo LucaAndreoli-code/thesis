@@ -74,8 +74,8 @@ npm run dev
 
 ### Utenze di test:
 
-- Email: `test@simplepay.com` - Password: `password123`
-- Email: `admin@simplepay.com` - Password: `password123`
+- Email: `test@example.com` - Password: `password123`
+- Email: `user@example.com` - Password: `password123`
 
 <!-- ## Testing
 
