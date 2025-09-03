@@ -101,7 +101,7 @@
               userTransactions.data.indexOf(transaction) === userTransactions.data.length - 1
           }"
         >
-          <div class="flex items-center">
+          <div class="flex items-center" @click="openDetailModal(transaction)">
             <div
               class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
             >
@@ -165,6 +165,7 @@
   <SendModal id="sendModal" @refresh="getUserInformations" />
   <TopupModal id="topupModal" @refresh="getUserInformations" />
   <TransferModal id="transferModal" @refresh="getUserInformations" />
+  <DetailModal id="detailModal" :transaction="selectedTransaction!" />
 </template>
 
 <script setup lang="ts">
@@ -173,6 +174,7 @@ import { onMounted, ref } from 'vue'
 import TransferModal from '@/components/modals/TransferModal.vue'
 import TopupModal from '@/components/modals/TopupModal.vue'
 import SendModal from '@/components/modals/SendModal.vue'
+import DetailModal from '@/components/modals/DetailModal.vue'
 import { getTokenInfo, type TokenInformations } from '@/service/jwt'
 import payments, { type Paginated, type Transaction } from '@/api/payments'
 import wallet, { type Balance } from '@/api/wallet'
@@ -187,6 +189,8 @@ const pageSize = ref(10)
 const searchQuery = ref('')
 const startDate = ref('')
 const endDate = ref('')
+
+const selectedTransaction = ref<Transaction | null>(null)
 
 const userInformation = ref<TokenInformations | null>(null)
 const handleLogout = async () => {
@@ -243,6 +247,13 @@ const debounceSearch = (() => {
 const getUserInformations = () => {
   getUserTransactions()
   getUserBalance()
+}
+
+const openDetailModal = (transaction: Transaction) => {
+  const detailModal = document.getElementById('detailModal') as HTMLDialogElement
+
+  selectedTransaction.value = transaction
+  detailModal.showModal()
 }
 </script>
 
