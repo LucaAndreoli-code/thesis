@@ -41,9 +41,10 @@ def withdraw_from_wallet(
 def get_wallet_balance(
         current_user: User = Depends(AuthService.get_current_user),
         db: Session = Depends(get_db)
-) -> dict[str, Any]:
+) -> BalanceResponse:
     try:
-        return WalletService.get_wallet_balance(current_user, db)
+        user_wallet = current_user.get_wallet(db)
+        return user_wallet.get_balance()
     except HTTPException:
         raise
     except Exception as e:

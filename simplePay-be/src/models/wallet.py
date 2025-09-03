@@ -1,7 +1,10 @@
+from decimal import Decimal
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 from datetime import datetime
 from .base import Base
+from ..schemas.wallet import BalanceResponse
+
 
 class Wallet(Base):
     __tablename__ = "wallets"
@@ -20,3 +23,14 @@ class Wallet(Base):
                                      back_populates="from_wallet")
     received_transactions = relationship("Transaction", foreign_keys="Transaction.to_wallet_id",
                                          back_populates="to_wallet")
+
+    def get_balance(self) -> BalanceResponse:
+        return BalanceResponse(balance=Decimal(self.balance), currency=str(self.currency))
+
+    def deposit(self, amount: Decimal):
+        self.balance += amount
+        self.updated_at = datetime.utcnow()
+
+    def withdraw(self, amount: Decimal):
+        self.balance -= amount
+        self.updated_at = datetime.utcnow()

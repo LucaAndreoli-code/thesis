@@ -8,7 +8,7 @@ import uuid
 from typing import Optional
 from src.schemas.payments import PaymentRequest, PaymentResponse
 from src.database.database import get_db
-from src.models import User
+from src.models import User, Base
 from src.models.wallet import Wallet
 from src.models.transaction import Transaction
 from src.service.auth import AuthService
@@ -20,8 +20,8 @@ class TransactionService:
         db: Session = Depends(get_db)):
 
         # Get wallets
-        from_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
-        to_wallet = db.query(Wallet).join(User, Wallet.user_id == User.id).filter(
+        from_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        to_wallet: Wallet(Base) = db.query(Wallet).join(User, Wallet.user_id == User.id).filter(
             User.email == payment.to_user_email).first()
 
         if not from_wallet:
@@ -89,10 +89,8 @@ class TransactionService:
             )
 
             # Update balances
-            from_wallet.balance -= payment_amount
-            to_wallet.balance += payment_amount
-            from_wallet.updated_at = datetime.utcnow()
-            to_wallet.updated_at = datetime.utcnow()
+            from_wallet.withdraw(payment_amount)
+            to_wallet.deposit(payment_amount)
 
             # Set processed timestamp
             transaction_user_from.processed_at = datetime.utcnow()

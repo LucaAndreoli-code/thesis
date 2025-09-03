@@ -48,7 +48,7 @@ class UserService:
     def authenticate_user(db: Session, email: str, password: str) -> User:
         user = UserService.get_user_by_email(db, email)
 
-        if not user or not user.verify_password(password):
+        if not user or not user.authenticate(password):
             raise HTTPException(status_code=401, detail="Invalid email or password")
         return user
 

@@ -3,12 +3,11 @@ import time
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 from src.database.database import get_db
-from src.models import User, Wallet, Transaction
+from src.models import User, Wallet, Transaction, Base
 from src.schemas.wallet import WithdrawRequest, OperationResponse, DepositRequest
 from src.service.auth import AuthService
 
@@ -34,29 +33,12 @@ def mock_bank_transfer(bank_account: str, amount: float) -> bool:
 
 class WalletService:
     @staticmethod
-    def get_wallet_balance(
-        current_user: User = Depends(AuthService.get_current_user),
-        db: Session = Depends(get_db)) -> dict[str, Any]:
-        user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
-
-        if not user_wallet:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Wallet not found"
-            )
-
-        return {
-            "balance": user_wallet.balance,
-            "currency": user_wallet.currency
-        }
-
-    @staticmethod
     def withdraw_from_wallet(
             withdraw: WithdrawRequest,
             current_user: User = Depends(AuthService.get_current_user),
             db: Session = Depends(get_db)
     ):
-        user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        user_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not user_wallet:
             raise HTTPException(
@@ -99,8 +81,7 @@ class WalletService:
                 transaction_type="withdraw"
             )
 
-            user_wallet.balance -= withdraw_amount
-            user_wallet.updated_at = datetime.utcnow()
+            user_wallet.withdraw(withdraw_amount)
 
             transaction.processed_at = datetime.utcnow()
 
@@ -130,7 +111,7 @@ class WalletService:
             db: Session = Depends(get_db)
     ):
         # Get user wallet
-        user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        user_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not user_wallet:
             raise HTTPException(
@@ -167,8 +148,7 @@ class WalletService:
                 transaction_type="deposit"
             )
 
-            user_wallet.balance += deposit_amount
-            user_wallet.updated_at = datetime.utcnow()
+            user_wallet.deposit(deposit_amount)
 
             transaction.processed_at = datetime.utcnow()
 

@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 from passlib.context import CryptContext
 from datetime import datetime
+
+from src.models.wallet import Wallet
 from .base import Base
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,5 +26,8 @@ class User(Base):
     def hash_password(cls, password: str) -> str:
         return pwd_context.hash(password)
 
-    def verify_password(self, password: str) -> bool:
+    def authenticate(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
+
+    def get_wallet(self, db: Session) -> Wallet:
+        return db.query(Wallet).filter(Wallet.user_id == self.id).first()
