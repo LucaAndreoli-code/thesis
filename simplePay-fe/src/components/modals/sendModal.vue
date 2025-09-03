@@ -13,7 +13,7 @@
           <input
             type="email"
             class="input input-bordered w-full"
-            placeholder="Email, telefono o nome"
+            placeholder="Email del destinatario"
             required
             v-model="form.to_user_email"
           />

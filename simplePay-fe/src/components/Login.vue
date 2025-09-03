@@ -12,6 +12,7 @@
             placeholder="Email"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
+            autocomplete="email"
           />
         </div>
 
@@ -22,6 +23,7 @@
             placeholder="Password"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
+            autocomplete="current-password"
           />
         </div>
 

@@ -42,6 +42,7 @@
             placeholder="Password"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
+            autocomplete="new-password"
           />
         </div>
 
@@ -52,6 +53,7 @@
             placeholder="Conferma Password"
             class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-black focus:outline-none text-black"
             required
+            autocomplete="new-password"
           />
         </div>
 
