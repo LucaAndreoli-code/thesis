@@ -8,6 +8,10 @@ setup_database()
 
 app = FastAPI(title="Simple Pay", version="1.0.0", docs_url="/docs")
 
+@app.get("/health", tags=["Health Check"])
+def health_check():
+    return {"msg": "Simple Pay API is running"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
