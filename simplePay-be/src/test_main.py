@@ -1,10 +1,8 @@
 from fastapi.testclient import TestClient
 
-from migration_manager import setup_database
 from .main import app
 
 client = TestClient(app)
-setup_database()
 
 def test_read_main():
     response = client.get("/health")

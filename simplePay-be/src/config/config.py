@@ -15,7 +15,5 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-print(DATABASE_URL)
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 
