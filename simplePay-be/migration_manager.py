@@ -1,12 +1,8 @@
 import os
-import string
 import subprocess
 import sys
-from random import random
-
 from sqlalchemy.orm import sessionmaker
-
-from src.controller.v1.transaction import create_payment
+from src.service.transaction import TransactionService
 from src.service.user import UserService
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -85,8 +81,9 @@ def setup_database():
     print("Database ready!")
     return True
 
+
 def seed_initial_data():
-    print("Inserimento dati iniziali...")
+    print("Initializing data...")
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -120,21 +117,175 @@ def seed_initial_data():
             UserService.create_user(session, user_data)
 
         wallets = session.query(Wallet).all()
+        wallet_balances = {wallet.id: 0.0 for wallet in wallets}
+
+        all_transactions = []
+
         for wallet in wallets:
-            wallet.balance = 100.00
-            transactions = Transaction(
+            initial_deposit = 1000.00
+            deposit_transaction = Transaction(
                 from_wallet_id=None,
                 to_wallet_id=wallet.id,
-                amount=wallet.balance,
+                amount=initial_deposit,
                 description=f"First deposit to {wallet.wallet_number}",
                 reference_code=f"TOP{os.urandom(4).hex().upper()}",
                 status="completed",
                 transaction_type="deposit"
             )
-            session.add(transactions)
+            all_transactions.append(deposit_transaction)
+            wallet_balances[wallet.id] += initial_deposit
 
+        # Transazione 1: Wallet 1 -> Wallet 2
+        transaction_user_from_1 = Transaction(
+            from_wallet_id=1,
+            to_wallet_id=2,
+            amount=12.34,
+            description=f"Payment to {users_data[1]['email']}",
+            reference_code='PAY12345678',
+            status="completed",
+            transaction_type="send"
+        )
+        all_transactions.append(transaction_user_from_1)
+        wallet_balances[1] -= 12.34
+        wallet_balances[2] += 12.34
+
+        transaction_user_to_1 = Transaction(
+            from_wallet_id=2,
+            to_wallet_id=1,
+            amount=12.34,
+            description=f"Receiving from {users_data[0]['email']}",
+            reference_code='PAY12345678',
+            status="completed",
+            transaction_type="receive"
+        )
+        all_transactions.append(transaction_user_to_1)
+
+        # Transazione 2: Wallet 1 -> Wallet 3
+        transaction_user_from_2 = Transaction(
+            from_wallet_id=1,
+            to_wallet_id=3,
+            amount=25.50,
+            description=f"Payment to {users_data[2]['email']}",
+            reference_code='PAY23456789',
+            status="completed",
+            transaction_type="send"
+        )
+        all_transactions.append(transaction_user_from_2)
+        wallet_balances[1] -= 25.50
+        wallet_balances[3] += 25.50
+
+        transaction_user_to_2 = Transaction(
+            from_wallet_id=3,
+            to_wallet_id=1,
+            amount=25.50,
+            description=f"Receiving from {users_data[0]['email']}",
+            reference_code='PAY23456789',
+            status="completed",
+            transaction_type="receive"
+        )
+        all_transactions.append(transaction_user_to_2)
+
+        # Transazione 3: Wallet 2 -> Wallet 3
+        transaction_user_from_3 = Transaction(
+            from_wallet_id=2,
+            to_wallet_id=3,
+            amount=33.75,
+            description=f"Payment to {users_data[2]['email']}",
+            reference_code='PAY34567890',
+            status="completed",
+            transaction_type="send"
+        )
+        all_transactions.append(transaction_user_from_3)
+        wallet_balances[2] -= 33.75
+        wallet_balances[3] += 33.75
+
+        transaction_user_to_3 = Transaction(
+            from_wallet_id=3,
+            to_wallet_id=2,
+            amount=33.75,
+            description=f"Receiving from {users_data[1]['email']}",
+            reference_code='PAY34567890',
+            status="completed",
+            transaction_type="receive"
+        )
+        all_transactions.append(transaction_user_to_3)
+
+        # Transazione 4: Wallet 3 -> Wallet 1
+        transaction_user_from_4 = Transaction(
+            from_wallet_id=3,
+            to_wallet_id=1,
+            amount=45.20,
+            description=f"Payment to {users_data[0]['email']}",
+            reference_code='PAY45678901',
+            status="completed",
+            transaction_type="send"
+        )
+        all_transactions.append(transaction_user_from_4)
+        wallet_balances[3] -= 45.20
+        wallet_balances[1] += 45.20
+
+        transaction_user_to_4 = Transaction(
+            from_wallet_id=1,
+            to_wallet_id=3,
+            amount=45.20,
+            description=f"Receiving from {users_data[2]['email']}",
+            reference_code='PAY45678901',
+            status="completed",
+            transaction_type="receive"
+        )
+        all_transactions.append(transaction_user_to_4)
+
+        # Transazione 5: Wallet 2 -> Wallet 1
+        transaction_user_from_5 = Transaction(
+            from_wallet_id=2,
+            to_wallet_id=1,
+            amount=64.30,
+            description=f"Payment to {users_data[0]['email']}",
+            reference_code='PAY67890123',
+            status="completed",
+            transaction_type="send"
+        )
+        all_transactions.append(transaction_user_from_5)
+        wallet_balances[2] -= 64.30
+        wallet_balances[1] += 64.30
+
+        transaction_user_to_5 = Transaction(
+            from_wallet_id=1,
+            to_wallet_id=2,
+            amount=64.30,
+            description=f"Receiving from {users_data[1]['email']}",
+            reference_code='PAY67890123',
+            status="completed",
+            transaction_type="receive"
+        )
+        all_transactions.append(transaction_user_to_5)
+
+        # Transazione di prelievo
+        withdraw_amount = 64.30
+        withdraw_transaction = Transaction(
+            from_wallet_id=1,
+            to_wallet_id=None,
+            amount=withdraw_amount,
+            description="Bank withdrawal - Utente Prova",
+            reference_code='PAY67890123',
+            status="completed",
+            transaction_type="withdraw"
+        )
+        all_transactions.append(withdraw_transaction)
+        wallet_balances[1] -= withdraw_amount
+
+        # Aggiorna i saldi dei wallet
+        for wallet in wallets:
+            wallet.balance = wallet_balances[wallet.id]
+
+        # Salva tutte le transazioni
+        for transaction in all_transactions:
+            TransactionService.create_transaction(session, transaction)
+
+        # Commit finale
         session.commit()
-        print(f"Creati {len(users_data)} utenti e i loro wallet con successo!")
+        print(
+            f"Users created: {len(users_data)}, {len(wallets)} wallet and {len(all_transactions)} transactions!")
 
     except Exception as e:
         print(f"Errore durante l'inserimento dei dati iniziali: {e}")
