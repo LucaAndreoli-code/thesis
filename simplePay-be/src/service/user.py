@@ -20,6 +20,13 @@ class UserService:
                 detail="User with this username or email already exists"
             )
 
+
+        if len(user_data['password']) < 8:
+            raise HTTPException(
+                status_code=400,
+                detail="Password must be at least 8 characters long"
+            )
+
         try:
             # Hash password and create user
             hashed_password = User.hash_password(user_data['password'])
@@ -76,3 +83,31 @@ class UserService:
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=f"Wallet creation error: {str(e)}")
+
+    @staticmethod
+    def delete_by_id(db: Session, user_id: int):
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        try:
+            db.delete(user)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"User deletion error: {str(e)}")
+
+    @staticmethod
+    def delete_by_email(db: Session, email: str):
+        wallet = db.query(Wallet).filter(Wallet.user.has(email=email)).first()
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        try:
+            db.delete(wallet)
+            db.delete(user)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"User deletion error: {str(e)}")
