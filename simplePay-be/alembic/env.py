@@ -1,35 +1,21 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+
+from config import DATABASE_URL
 from src.models import Base
 from src.models.user import User
 from src.models.wallet import Wallet
 from src.models.transaction import Transaction
 import sys
-import os
 from pathlib import Path
-from dotenv import load_dotenv
 
 current_dir = Path(__file__).parent
 root_dir = current_dir.parent
 sys.path.insert(0, str(root_dir))
 
-if 'pytest' in sys.modules or 'pytest' in ' '.join(sys.argv):
-    load_dotenv('.env.test', override=True)
-else:
-    load_dotenv('.env')
-
 target_metadata = Base.metadata if 'Base' in locals() else None
 config = context.config
-
-# override config with env variables
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5433")
-DB_NAME = os.getenv("DB_NAME", "postgres")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-SECRET_KEY = os.getenv("SECRET_KEY")
 
 if DATABASE_URL:
     config.set_main_option('sqlalchemy.url', DATABASE_URL)

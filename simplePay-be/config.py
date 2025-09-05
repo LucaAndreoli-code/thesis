@@ -3,8 +3,10 @@ from dotenv import load_dotenv
 import sys
 
 if 'pytest' in sys.modules or 'pytest' in ' '.join(sys.argv):
+    print("Loading TEST environment variables...")
     load_dotenv('.env.test', override=True)
 else:
+    print("Loading DEFAULT environment variables...")
     load_dotenv()
 
 DB_HOST = os.getenv("DB_HOST", "localhost")
