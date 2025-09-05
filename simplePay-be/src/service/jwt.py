@@ -1,4 +1,4 @@
-import jwt
+from jose import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from src.config.config import SECRET_KEY

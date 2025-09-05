@@ -29,6 +29,8 @@ DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 if DATABASE_URL:
     config.set_main_option('sqlalchemy.url', DATABASE_URL)
 
