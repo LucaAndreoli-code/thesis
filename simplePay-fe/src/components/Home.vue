@@ -61,7 +61,7 @@
           Transazioni recenti <span class="loading loading-dots loading-sm" v-if="isLoading"></span>
         </h2>
         <div class="flex flex-wrap gap-2">
-          <div class="form-control max-w-xs">
+          <div class="max-w-xs">
             <input
               type="text"
               placeholder="Cerca..."
@@ -71,7 +71,7 @@
             />
           </div>
           <div class="flex gap-2">
-            <div class="form-control">
+            <div>
               <input
                 type="date"
                 v-model="startDate"
@@ -79,7 +79,7 @@
                 class="input input-bordered input-sm"
               />
             </div>
-            <div class="form-control">
+            <div>
               <input
                 type="date"
                 v-model="endDate"

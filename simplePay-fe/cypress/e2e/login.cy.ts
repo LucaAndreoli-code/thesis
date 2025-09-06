@@ -1,3 +1,7 @@
+import { baseUrl } from '../support/commands'
+
+const loginEndpoint = `${baseUrl}/auth/login`
+
 describe('Login Page', () => {
   beforeEach(() => {
     cy.visit('http://localhost:5173/login')
@@ -34,7 +38,7 @@ describe('Login Page', () => {
   })
 
   it('should attempt login with valid credentials', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/login').as('loginRequest')
+    cy.intercept('POST', loginEndpoint).as('loginRequest')
 
     cy.get('input[type="email"]').type('test@example.com')
     cy.get('input[type="password"]').type('password123')
@@ -50,7 +54,7 @@ describe('Login Page', () => {
   })
 
   it('should handle login error', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/login').as('loginError')
+    cy.intercept('POST', loginEndpoint).as('loginError')
 
     cy.get('input[type="email"]').type('wrong@example.com')
     cy.get('input[type="password"]').type('wrongpassword')
@@ -60,7 +64,7 @@ describe('Login Page', () => {
   })
 
   it('should show loading state during login', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/login').as('loginDelay')
+    cy.intercept('POST', loginEndpoint).as('loginDelay')
 
     cy.get('input[type="email"]').type('test@example.com')
     cy.get('input[type="password"]').type('password123')

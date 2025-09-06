@@ -4,14 +4,21 @@
       <form method="dialog" @submit.prevent="withLoading(sendMoney)">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-medium">Invia denaro</h2>
-          <button id="closeSendModal" type="button" class="btn btn-sm btn-circle" onclick="sendModal.close()">✕</button>
+          <button
+            id="closeSendModal"
+            type="button"
+            class="btn btn-sm btn-circle"
+            onclick="sendModal.close()"
+          >
+            ✕
+          </button>
         </div>
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Destinatario</span>
           </label>
           <input
-            id="emailInput"
+            id="sendEmail"
             type="email"
             class="input input-bordered w-full"
             placeholder="Email del destinatario"
@@ -20,12 +27,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Importo</span>
           </label>
           <input
-            id="amountInput"
+            id="sendAmount"
             type="number"
             class="input input-bordered w-full"
             placeholder="0,00"
@@ -36,11 +43,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Messaggio (opzionale)</span>
           </label>
           <input
+            id="sendDescription"
             type="text"
             class="input input-bordered w-full"
             placeholder="Aggiungi una nota"
@@ -48,10 +56,15 @@
           />
         </div>
 
-        <button :disabled="isLoading" class="btn bg-black text-white w-full hover:bg-gray-800">
+        <button
+          id="sendSubmit"
+          :disabled="isLoading"
+          class="btn bg-black text-white w-full hover:bg-gray-800"
+        >
           <span class="loading loading-dots" v-if="isLoading"></span>Invia
         </button>
         <button
+          id="sendCancel"
           :disabled="isLoading"
           type="button"
           class="btn w-full mt-4"

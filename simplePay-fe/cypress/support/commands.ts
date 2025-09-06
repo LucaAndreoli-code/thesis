@@ -34,10 +34,12 @@ declare global {
   }
 }
 
+export const baseUrl = 'http://0.0.0.0:8000/api/v1'
+
 Cypress.Commands.add('login', () => {
   cy.request({
     method: 'POST',
-    url: 'http://0.0.0.0:8000/api/v1/auth/login',
+    url: `${baseUrl}/auth/login`,
     body: {
       email: 'test@example.com', // o email, dipende dalla tua API
       password: 'password123'

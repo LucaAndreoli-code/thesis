@@ -19,7 +19,7 @@ def mock_card_payment(card_number: str, amount: float) -> bool:
     if card_number in test_fail_cards:
         return False
 
-    return random.random() > 0.05
+    return True
 
 
 def mock_bank_transfer(bank_account: str, amount: float) -> bool:
@@ -29,7 +29,7 @@ def mock_bank_transfer(bank_account: str, amount: float) -> bool:
     if bank_account in test_fail_accounts:
         return False
 
-    return random.random() > 0.03
+    return True
 
 class WalletService:
     @staticmethod

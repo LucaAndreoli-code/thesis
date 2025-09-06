@@ -3,15 +3,16 @@
     <div class="modal-box">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-medium">Bonifico bancario</h2>
-        <button class="btn btn-sm btn-circle" onclick="transferModal.close()">✕</button>
+        <button id="closeTransferModal" class="btn btn-sm btn-circle" onclick="transferModal.close()">✕</button>
       </div>
 
       <form @submit.prevent="withLoading(transferMoney)">
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Importo da trasferire</span>
           </label>
           <input
+            id="transferAmount"
             type="number"
             class="input input-bordered w-full"
             placeholder="0,00"
@@ -22,11 +23,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">IBAN</span>
           </label>
           <input
+            id="transferIban"
             type="text"
             class="input input-bordered w-full"
             placeholder="IT60X0542811101000000123456"
@@ -37,11 +39,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Intestatario conto</span>
           </label>
           <input
+            id="transferAccountHolder"
             type="text"
             class="input input-bordered w-full"
             placeholder="Nome Cognome"
@@ -51,6 +54,7 @@
         </div>
 
         <button
+          id="transferSubmit"
           :disabled="isLoading"
           type="submit"
           class="btn bg-black text-white w-full hover:bg-gray-800"
@@ -58,6 +62,7 @@
           <span class="loading loading-dots" v-if="isLoading"></span> Trasferisci
         </button>
         <button
+          id="transferCancel"
           :disabled="isLoading"
           type="button"
           class="btn w-full mt-4"

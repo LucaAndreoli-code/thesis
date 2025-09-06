@@ -1,4 +1,6 @@
-/// <reference types="cypress" />
+import { baseUrl } from '../support/commands'
+
+const registerEndpoint = `${baseUrl}/auth/register`
 
 describe('Register Page', () => {
   beforeEach(() => {
@@ -59,7 +61,7 @@ describe('Register Page', () => {
   })
 
   it('should successfully register with valid data', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/register').as('registerRequest')
+    cy.intercept('POST', registerEndpoint).as('registerRequest')
 
     cy.get('input[placeholder="Nome"]').type('Mario')
     cy.get('input[placeholder="Cognome"]').type('Rossi')
@@ -78,7 +80,7 @@ describe('Register Page', () => {
   })
 
   it('should handle registration error', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/register', {
+    cy.intercept('POST', registerEndpoint, {
       statusCode: 400,
       body: { detail: 'User already exists' }
     }).as('registerError')
@@ -95,7 +97,7 @@ describe('Register Page', () => {
   })
 
   it('should show loading state during registration', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/register').as('registerDelay')
+    cy.intercept('POST', registerEndpoint).as('registerDelay')
 
     cy.get('input[placeholder="Nome"]').type('Mario')
     cy.get('input[placeholder="Cognome"]').type('Rossi')
@@ -130,7 +132,7 @@ describe('Register Page', () => {
   })
 
   it('should clear form after successful registration', () => {
-    cy.intercept('POST', 'http://0.0.0.0:8000/api/v1/auth/register').as('registerSuccess')
+    cy.intercept('POST', registerEndpoint).as('registerSuccess')
 
     cy.get('input[placeholder="Nome"]').type('Mario')
     cy.get('input[placeholder="Cognome"]').type('Rossi')

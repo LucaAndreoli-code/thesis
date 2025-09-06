@@ -3,15 +3,18 @@
     <div class="modal-box">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-medium">Ricarica conto</h2>
-        <button class="btn btn-sm btn-circle" onclick="topupModal.close()">✕</button>
+        <button id="closeTopupModal" class="btn btn-sm btn-circle" onclick="topupModal.close()">
+          ✕
+        </button>
       </div>
 
       <form @submit.prevent="withLoading(topupMoney)">
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Importo da ricaricare</span>
           </label>
           <input
+            id="toputAmount"
             type="number"
             class="input input-bordered w-full"
             placeholder="0,00"
@@ -22,11 +25,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Numero carta</span>
           </label>
           <input
+            id="topupCardNumber"
             type="tel"
             pattern="[0-9\s]{13,19}"
             v-model="form.card_number"
@@ -37,11 +41,12 @@
           />
         </div>
 
-        <div class="form-control mb-4">
+        <div class="mb-4">
           <label class="label">
             <span class="label-text font-medium">Intestatario carta</span>
           </label>
           <input
+            id="topupCardHolder"
             type="text"
             class="input input-bordered w-full"
             placeholder="Nome Cognome"
@@ -51,12 +56,13 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <div class="form-control mb-4">
+          <div class="mb-4">
             <label class="label">
               <span class="label-text font-medium">Data scadenza</span>
             </label>
             <div class="flex items-center">
               <input
+                id="topupExpiryDate"
                 type="text"
                 class="input input-bordered w-1/2"
                 placeholder="MM"
@@ -67,6 +73,7 @@
               />
               <span class="mx-1">/</span>
               <input
+                id="topupExpiryYear"
                 type="text"
                 class="input input-bordered w-1/2"
                 placeholder="AA"
@@ -77,11 +84,12 @@
             </div>
           </div>
 
-          <div class="form-control mb-4">
+          <div class="mb-4">
             <label class="label">
               <span class="label-text font-medium">CVV</span>
             </label>
             <input
+              id="topupCvv"
               type="text"
               class="input input-bordered w-full"
               placeholder="123"
@@ -93,6 +101,7 @@
         </div>
 
         <button
+          id="topupSubmit"
           :disabled="isLoading"
           type="submit"
           class="btn bg-black text-white w-full hover:bg-gray-800"
@@ -101,6 +110,7 @@
           Ricarica
         </button>
         <button
+          id="topupCancel"
           :disabled="isLoading"
           type="button"
           class="btn w-full mt-4"
