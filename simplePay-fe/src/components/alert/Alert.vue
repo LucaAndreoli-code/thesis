@@ -1,6 +1,6 @@
 <template>
     <!-- Info Alert -->
-    <div role="alert" class="alert alert-pos shadow-lg alert-info" v-if="alert.message && alert.type === 'info'">
+    <div id="info-alert" role="alert" class="alert alert-pos shadow-lg alert-info" v-if="alert.message && alert.type === 'info'">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Success Alert -->
-    <div role="alert" class="alert alert-pos shadow-lg alert-success" v-else-if="alert.message && alert.type === 'success'">
+    <div id="success-alert" role="alert" class="alert alert-pos shadow-lg alert-success" v-else-if="alert.message && alert.type === 'success'">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             class="stroke-current shrink-0 h-6 w-6"
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Error Alert -->
-    <div role="alert" class="alert alert-pos shadow-lg alert-error" v-else-if="alert.message && alert.type === 'error'">
+    <div id="error-alert" role="alert" class="alert alert-pos shadow-lg alert-error" v-else-if="alert.message && alert.type === 'error'">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             class="stroke-current shrink-0 h-6 w-6"
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Default/Warning Alert -->
-    <div role="alert" class="alert alert-pos shadow-lg alert-warning" v-else-if="alert.message">
+    <div id="warning-alert" role="alert" class="alert alert-pos shadow-lg alert-warning" v-else-if="alert.message">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             class="stroke-current shrink-0 h-6 w-6"

@@ -9,7 +9,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.database.database import engine
 
-
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     print("Reset database for tests...")

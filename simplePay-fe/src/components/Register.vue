@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import auth from '@/api/auth'
+import { notify } from '@/service/alert'
 import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -93,7 +94,7 @@ const form = ref({
 
 const handleRegister = async () => {
   if (form.value.password !== form.value.confirmPassword) {
-    alert('Le password non coincidono!')
+    notify('error', 'Le password non coincidono!')
     return
   }
 
