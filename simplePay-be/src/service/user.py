@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from src.models.user import User
 from src.models.wallet import Wallet
+from .wallet import WalletService
 
 
 class UserService:
@@ -43,7 +44,7 @@ class UserService:
             db.refresh(db_user)
 
             # Create default wallet
-            UserService._create_default_wallet(db, db_user.id)
+            WalletService.create_wallet(db, db_user.id)
 
             return db_user
 
@@ -65,24 +66,6 @@ class UserService:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return user
-
-    @staticmethod
-    def _create_default_wallet(db: Session, user_id: int):
-        wallet_number = f"SP{str(uuid.uuid4().int)[:12]}"
-        db_wallet = Wallet(
-            user_id=user_id,
-            wallet_number=wallet_number,
-            balance=0.00,
-            status="active",
-            currency="EUR"
-        )
-
-        try:
-            db.add(db_wallet)
-            db.commit()
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=500, detail=f"Wallet creation error: {str(e)}")
 
     @staticmethod
     def delete_by_id(db: Session, user_id: int):

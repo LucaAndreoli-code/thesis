@@ -1,10 +1,10 @@
-from jose import jwt
+import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from config import SECRET_KEY
 
 
-class JWTService:
+class TokenService:
     @staticmethod
     def generate_token(user) -> str:
         try:

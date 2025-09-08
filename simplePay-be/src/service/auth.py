@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from src.service.jwt import JWTService
+from src.service.token import TokenService
 from src.models.user import User
 from src.database.database import get_db
 from src.service.user import UserService
@@ -15,7 +15,7 @@ class AuthService:
         try:
             # Authenticate user
             user = UserService.authenticate_user(db, str(user_data.email), user_data.password)
-            access_token = JWTService.generate_token(user)
+            access_token = TokenService.generate_token(user)
 
             return {
                 "access_token": access_token,
@@ -51,7 +51,7 @@ class AuthService:
         token = credentials.credentials
 
         # Verify token and get payload
-        payload = JWTService.verify_token(token)
+        payload = TokenService.verify_token(token)
         user_id = payload.get("user_id")
 
         if not user_id:

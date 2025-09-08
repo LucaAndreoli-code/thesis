@@ -35,7 +35,7 @@ def get_transactions(
         current_user: User = Depends(AuthService.get_current_user)
 ):
     try:
-        return TransactionService.get_transactions(page, page_size, search, start_date, end_date, db, current_user)
+        return TransactionService.get_transactions_paginated(page, page_size, search, start_date, end_date, db, current_user)
     except HTTPException:
         raise
     except Exception as e:

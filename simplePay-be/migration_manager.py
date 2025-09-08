@@ -2,14 +2,13 @@ import os
 import subprocess
 import sys
 from sqlalchemy.orm import sessionmaker
-from src.service.transaction import TransactionService
 from src.service.user import UserService
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import inspect, text
 from src.database.database import engine
-from src.models import Base, Wallet, User, Transaction
+from src.models import Base, Wallet, Transaction
 
 
 def run_command(cmd):
@@ -280,7 +279,9 @@ def seed_initial_data():
 
         # Salva tutte le transazioni
         for transaction in all_transactions:
-            TransactionService.create_transaction(session, transaction)
+            session.add(transaction)
+            session.commit()
+            session.refresh(transaction)
 
         # Commit finale
         session.commit()

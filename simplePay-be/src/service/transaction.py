@@ -97,8 +97,11 @@ class TransactionService:
             transaction_user_to.processed_at = datetime.utcnow()
 
             # Save to database
-            TransactionService.create_transaction(db, transaction_user_from)
-            TransactionService.create_transaction(db, transaction_user_to)
+            db.add(transaction_user_from)
+            db.add(transaction_user_to)
+            db.commit()
+            db.refresh(transaction_user_from)
+            db.refresh(transaction_user_to)
 
             return PaymentResponse(
                 reference_code=reference_code,
@@ -115,16 +118,16 @@ class TransactionService:
             )
 
     @staticmethod
-    def get_transactions(page: int = Query(1, ge=1),
-                        page_size: int = Query(10, ge=1, le=100),
-                        search: Optional[str] = Query(None,
+    def get_transactions_paginated(page: int = Query(1, ge=1),
+                                   page_size: int = Query(10, ge=1, le=100),
+                                   search: Optional[str] = Query(None,
                                                       description="Ricerca per descrizione, codice riferimento o tipo"),
-                        start_date: Optional[datetime] = Query(None,
+                                   start_date: Optional[datetime] = Query(None,
                                                                description="Data di inizio filtro (formato: YYYY-MM-DD)"),
-                        end_date: Optional[datetime] = Query(None,
+                                   end_date: Optional[datetime] = Query(None,
                                                              description="Data di fine filtro (formato: YYYY-MM-DD)"),
-                        db: Session = Depends(get_db),
-                        current_user: User = Depends(AuthService.get_current_user)):
+                                   db: Session = Depends(get_db),
+                                   current_user: User = Depends(AuthService.get_current_user)):
         wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not wallet:

@@ -1,4 +1,3 @@
-import random
 import time
 import uuid
 from datetime import datetime
@@ -9,10 +8,8 @@ from starlette import status
 from src.database.database import get_db
 from src.models import User, Wallet, Transaction, Base
 from src.schemas.wallet import WithdrawRequest, OperationResponse, DepositRequest
-from src.service.auth import AuthService
 
-
-def mock_card_payment(card_number: str, amount: float) -> bool:
+def mock_card_payment(card_number: str, _: Decimal) -> bool:
     time.sleep(1)
 
     test_fail_cards = ["4000000000000002", "4000000000000010"]
@@ -22,7 +19,7 @@ def mock_card_payment(card_number: str, amount: float) -> bool:
     return True
 
 
-def mock_bank_transfer(bank_account: str, amount: float) -> bool:
+def mock_bank_transfer(bank_account: str,  _: Decimal) -> bool:
     time.sleep(2)
 
     test_fail_accounts = ["IT60X0542811101000000123456"]
@@ -33,9 +30,27 @@ def mock_bank_transfer(bank_account: str, amount: float) -> bool:
 
 class WalletService:
     @staticmethod
+    def create_wallet(db: Session, user_id: int):
+        wallet_number = f"SP{str(uuid.uuid4().int)[:12]}"
+        db_wallet = Wallet(
+            user_id=user_id,
+            wallet_number=wallet_number,
+            balance=0.00,
+            status="active",
+            currency="EUR"
+        )
+
+        try:
+            db.add(db_wallet)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Wallet creation error: {str(e)}")
+
+    @staticmethod
     def withdraw_from_wallet(
             withdraw: WithdrawRequest,
-            current_user: User = Depends(AuthService.get_current_user),
+            current_user: User,
             db: Session = Depends(get_db)
     ):
         user_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
@@ -107,7 +122,7 @@ class WalletService:
     @staticmethod
     def deposit_to_wallet(
             deposit: DepositRequest,
-            current_user: User = Depends(AuthService.get_current_user),
+            current_user: User,
             db: Session = Depends(get_db)
     ):
         # Get user wallet
