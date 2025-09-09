@@ -11,7 +11,7 @@ from src.database.database import engine
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
-    print("Reset database for tests...")
+    print("\nReset database for tests...")
 
     with engine.connect() as conn:
         conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))

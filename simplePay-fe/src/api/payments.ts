@@ -30,8 +30,7 @@ export default {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/payments/send`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
     })
@@ -41,23 +40,28 @@ export default {
     }
     return response.text()
   },
-  async getTransactions(page: number, pageSize: number, search?: string, start_date?: string, end_date?: string): Promise<Paginated<Transaction>> {
-    const params = new URLSearchParams();
-    params.append('page', page.toString());
-    params.append('pageSize', pageSize.toString());
-    
-    if (search) params.append('search', search);
-    if (start_date) params.append('start_date', start_date);
-    if (end_date) params.append('end_date', end_date);
-    
+  async getTransactions(
+    page: number,
+    pageSize: number,
+    search?: string,
+    start_date?: string,
+    end_date?: string
+  ): Promise<Paginated<Transaction>> {
+    const params = new URLSearchParams()
+    params.append('page', page.toString())
+    params.append('pageSize', pageSize.toString())
+
+    if (search) params.append('search', search)
+    if (start_date) params.append('start_date', start_date)
+    if (end_date) params.append('end_date', end_date)
+
     const response = await fetch(
-      `${import.meta.env.VITE_APP_BASE_URL}/payments/transactions?${params.toString()}`,
+      `${import.meta.env.VITE_APP_BASE_URL}/payments/history?${params.toString()}`,
       {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
-      }
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
     )
     if (!response.ok) {

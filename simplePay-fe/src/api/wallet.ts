@@ -21,7 +21,6 @@ export default {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
-        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       }
     })
     if (!response.ok) {
@@ -35,7 +34,6 @@ export default {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       },
       body: JSON.stringify(body)
     })
@@ -53,7 +51,6 @@ export default {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-        // Authorization: `Bearer ${localStorage.getItem('userToken') ?? ''}`
       },
       body: JSON.stringify(body)
     })

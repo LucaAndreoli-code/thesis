@@ -24,7 +24,7 @@ def create_payment(
         raise HTTPException(status_code=500, detail=f"Payment error: {str(e)}")
 
 
-@router.get("/transactions")
+@router.get("/history")
 def get_transactions(
         page: int = Query(1, ge=1),
         page_size: int = Query(10, ge=1, le=100),
