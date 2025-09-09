@@ -43,7 +43,7 @@ def get_wallet_balance(
         db: Session = Depends(get_db)
 ) -> BalanceResponse:
     try:
-        user_wallet = WalletService.get_wallet(current_user, db)
+        user_wallet = WalletService.get_user_wallet(current_user, db)
         return user_wallet.get_balance()
     except HTTPException:
         raise

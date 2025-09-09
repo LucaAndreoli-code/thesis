@@ -187,6 +187,6 @@ class WalletService:
             )
 
     @staticmethod
-    def get_wallet(current_user: User,
-            db: Session = Depends(get_db)) -> Wallet:
-        return db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+    def get_user_wallet(user: User,
+                        db: Session = Depends(get_db)) -> Wallet:
+        return db.query(Wallet).filter(Wallet.user_id == user.id).first()
