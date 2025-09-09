@@ -185,3 +185,8 @@ class WalletService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Deposit failed"
             )
+
+    @staticmethod
+    def get_wallet(current_user: User,
+            db: Session = Depends(get_db)) -> Wallet:
+        return db.query(Wallet).filter(Wallet.user_id == current_user.id).first()

@@ -29,5 +29,3 @@ class User(Base):
     def authenticate(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
 
-    def get_wallet(self, db: Session) -> Wallet:
-        return db.query(Wallet).filter(Wallet.user_id == self.id).first()
