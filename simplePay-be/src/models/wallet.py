@@ -5,7 +5,7 @@ from datetime import datetime
 from .base import Base
 from ..schemas.wallet import BalanceResponse
 
-
+# Questa classe rappresenta un portafoglio digitale associato a un utente
 class Wallet(Base):
     __tablename__ = "wallets"
 

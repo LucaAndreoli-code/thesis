@@ -7,21 +7,20 @@ from datetime import datetime
 import uuid
 from typing import Optional
 from src.schemas.payments import PaymentRequest, PaymentResponse
-from src.database.database import get_db
 from src.models import User, Base
 from src.models.wallet import Wallet
 from src.models.transaction import Transaction
-from src.service.auth import AuthService
 
 class TransactionService:
-    @staticmethod
-    def exchange_money(payment: PaymentRequest,
-        current_user:User=Depends(AuthService.get_current_user),
-        db: Session = Depends(get_db)):
+    def __init__(self, db: Session):
+        self.db = db
 
-        # Get wallets
-        from_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
-        to_wallet: Wallet(Base) = db.query(Wallet).join(User, Wallet.user_id == User.id).filter(
+    def exchange_money(self,
+                       payment: PaymentRequest,
+                       current_user: User):
+
+        from_wallet: Wallet(Base) = self.db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        to_wallet: Wallet(Base) = self.db.query(Wallet).join(User, Wallet.user_id == User.id).filter(
             User.email == payment.to_user_email).first()
 
         if not from_wallet:
@@ -42,7 +41,6 @@ class TransactionService:
                 detail="Cannot transfer to the same wallet"
             )
 
-        # Check wallet status
         if from_wallet.status != "active":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -55,7 +53,6 @@ class TransactionService:
                 detail="Destination wallet is not active"
             )
 
-        # Check sufficient balance
         payment_amount = Decimal(str(payment.amount))
         if from_wallet.balance < payment_amount:
             raise HTTPException(
@@ -63,45 +60,36 @@ class TransactionService:
                 detail="Insufficient balance"
             )
 
-        # Generate reference code
         reference_code = f"PAY{uuid.uuid4().hex[:8].upper()}"
 
         try:
-            # Create transaction
-            transaction_user_from = Transaction(
+            transaction_user_from = TransactionService(self.db).create_transaction(
                 from_wallet_id=from_wallet.id,
                 to_wallet_id=to_wallet.id,
                 amount=payment_amount,
                 description=f"Payment to {payment.to_user_email}",
-                reference_code=reference_code,
-                status="completed",
-                transaction_type="send"
+                transaction_type="send",
             )
 
-            transaction_user_to = Transaction(
+            transaction_user_to = TransactionService(self.db).create_transaction(
                 from_wallet_id=to_wallet.id,
                 to_wallet_id=from_wallet.id,
                 amount=payment_amount,
                 description=f"Receiving from {current_user.email}",
-                reference_code=reference_code,
-                status="completed",
-                transaction_type="receive"
+                transaction_type="receive",
             )
 
-            # Update balances
             from_wallet.withdraw(payment_amount)
             to_wallet.deposit(payment_amount)
 
-            # Set processed timestamp
             transaction_user_from.processed_at = datetime.utcnow()
             transaction_user_to.processed_at = datetime.utcnow()
 
-            # Save to database
-            db.add(transaction_user_from)
-            db.add(transaction_user_to)
-            db.commit()
-            db.refresh(transaction_user_from)
-            db.refresh(transaction_user_to)
+            self.db.add(transaction_user_from)
+            self.db.add(transaction_user_to)
+            self.db.commit()
+            self.db.refresh(transaction_user_from)
+            self.db.refresh(transaction_user_to)
 
             return PaymentResponse(
                 reference_code=reference_code,
@@ -110,39 +98,36 @@ class TransactionService:
             )
 
         except Exception as e:
-            db.rollback()
+            self.db.rollback()
             print(e)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Payment failed"
             )
 
-    @staticmethod
-    def get_transactions_paginated(page: int = Query(1, ge=1),
+
+    def get_transactions_paginated(self, 
+                                   current_user: User,
+                                   page: int = Query(1, ge=1),
                                    page_size: int = Query(10, ge=1, le=100),
                                    search: Optional[str] = Query(None,
-                                                      description="Ricerca per descrizione, codice riferimento o tipo"),
+                                                                 description="Search by description, reference code or type"),
                                    start_date: Optional[datetime] = Query(None,
-                                                               description="Data di inizio filtro (formato: YYYY-MM-DD)"),
+                                                                          description="Filter start date (format: YYYY-MM-DD)"),
                                    end_date: Optional[datetime] = Query(None,
-                                                             description="Data di fine filtro (formato: YYYY-MM-DD)"),
-                                   db: Session = Depends(get_db),
-                                   current_user: User = Depends(AuthService.get_current_user)):
-        wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+                                                                        description="Filter end date (format: YYYY-MM-DD)"),
+                                   ):
+        wallet = self.db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not wallet:
             raise HTTPException(status_code=404, detail="Wallet not found")
 
-        query = db.query(Transaction).filter(
+        query = self.db.query(Transaction).filter(
             or_(
-                # Caso 1: Ho mandato io soldi (send)
                 and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "send"),
-                # Caso 2: Ho ricevuto io soldi (receive)
                 and_(Transaction.from_wallet_id == wallet.id, Transaction.transaction_type == "receive"),
-                # Caso 3: Ho depositato soldi (deposit)
                 and_(Transaction.to_wallet_id == wallet.id,
                      and_(Transaction.from_wallet_id.is_(None), Transaction.transaction_type == "deposit")),
-                # Caso 4: Ho prelevato soldi (withdraw)
                 and_(Transaction.from_wallet_id == wallet.id,
                      and_(Transaction.to_wallet_id.is_(None), Transaction.transaction_type == "withdraw"))
             )
@@ -172,16 +157,37 @@ class TransactionService:
             "page": page,
             "page_size": page_size,
             "total": total,
-            "total_pages": (total + page_size) // page_size
+            "total_pages": (total + page_size - 1) // page_size
         }
 
-    @staticmethod
-    def create_transaction(db: Session, transaction: Transaction) -> Transaction:
+    def create_transaction(
+            self,
+            from_wallet_id: Optional[int],
+            to_wallet_id: Optional[int],
+            amount: Decimal,
+            transaction_type: str,
+            description: str = "",
+    ) -> Transaction:
+        reference_code = f"TXN{uuid.uuid4().hex[:8].upper()}"
+
         try:
-            db.add(transaction)
-            db.commit()
-            db.refresh(transaction)
+            transaction = Transaction(
+                from_wallet_id=from_wallet_id,
+                to_wallet_id=to_wallet_id,
+                amount=amount,
+                description=description,
+                reference_code=reference_code,
+                status="completed",
+                transaction_type=transaction_type,
+            )
+
+            self.db.add(transaction)
+            self.db.commit()
+            self.db.refresh(transaction)
             return transaction
         except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=500, detail=f"Transaction creation error: {str(e)}")
+            self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Transaction creation failed: {str(e)}"
+            )

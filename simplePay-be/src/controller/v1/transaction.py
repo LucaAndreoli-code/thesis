@@ -13,11 +13,11 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 @router.post("/send", response_model=PaymentResponse)
 def create_payment(
         payment: PaymentRequest,
+        db: Session = Depends(get_db),
         current_user:User=Depends(AuthService.get_current_user),
-        db: Session = Depends(get_db)
 ):
     try:
-        return TransactionService.exchange_money(payment, current_user, db)
+        return TransactionService(db).exchange_money(payment, current_user)
     except HTTPException:
         raise
     except Exception as e:
@@ -35,7 +35,7 @@ def get_transactions(
         current_user: User = Depends(AuthService.get_current_user)
 ):
     try:
-        return TransactionService.get_transactions_paginated(page, page_size, search, start_date, end_date, db, current_user)
+        return TransactionService(db).get_transactions_paginated(current_user, page, page_size, search, start_date, end_date)
     except HTTPException:
         raise
     except Exception as e:

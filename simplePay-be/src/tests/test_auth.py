@@ -38,7 +38,7 @@ def test_register():
     data = response.json()
     assert data["email"] == "register@example.com"
     assert data["username"] == "newuser"
-    UserService.delete_by_email(db, "register@example.com")
+    UserService(db).delete_by_email("register@example.com")
 
 def test_register_existing_email():
     response = client.post("api/v1/auth/register", json={

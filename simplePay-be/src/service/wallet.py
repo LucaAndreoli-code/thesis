@@ -2,12 +2,12 @@ import time
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
-from src.database.database import get_db
-from src.models import User, Wallet, Transaction, Base
+from src.models import User, Wallet, Base
 from src.schemas.wallet import WithdrawRequest, OperationResponse, DepositRequest
+from src.service.transaction import TransactionService
 
 def mock_card_payment(card_number: str, _: Decimal) -> bool:
     time.sleep(1)
@@ -29,8 +29,10 @@ def mock_bank_transfer(bank_account: str,  _: Decimal) -> bool:
     return True
 
 class WalletService:
-    @staticmethod
-    def create_wallet(db: Session, user_id: int):
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create_wallet(self, user_id: int):
         wallet_number = f"SP{str(uuid.uuid4().int)[:12]}"
         db_wallet = Wallet(
             user_id=user_id,
@@ -41,19 +43,19 @@ class WalletService:
         )
 
         try:
-            db.add(db_wallet)
-            db.commit()
+            self.db.add(db_wallet)
+            self.db.commit()
         except Exception as e:
-            db.rollback()
+            self.db.rollback()
             raise HTTPException(status_code=500, detail=f"Wallet creation error: {str(e)}")
 
-    @staticmethod
+
     def withdraw_from_wallet(
+            self,
             withdraw: WithdrawRequest,
             current_user: User,
-            db: Session = Depends(get_db)
     ):
-        user_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        user_wallet: Wallet(Base) = self.db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not user_wallet:
             raise HTTPException(
@@ -86,23 +88,21 @@ class WalletService:
         reference_code = f"WTH{uuid.uuid4().hex[:8].upper()}"
 
         try:
-            transaction = Transaction(
+            transaction = TransactionService(self.db).create_transaction(
                 from_wallet_id=user_wallet.id,
                 to_wallet_id=None,
                 amount=withdraw_amount,
                 description=f"Bank withdrawal - {withdraw.back_account_name}",
-                reference_code=reference_code,
-                status="completed",
-                transaction_type="withdraw"
+                transaction_type="withdraw",
             )
 
             user_wallet.withdraw(withdraw_amount)
 
             transaction.processed_at = datetime.utcnow()
 
-            db.add(transaction)
-            db.commit()
-            db.refresh(transaction)
+            self.db.add(transaction)
+            self.db.commit()
+            self.db.refresh(transaction)
 
             return OperationResponse(
                 transaction_id=transaction.id,
@@ -113,20 +113,20 @@ class WalletService:
             )
 
         except Exception as e:
-            db.rollback()
+            self.db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Withdrawal failed"
             )
 
-    @staticmethod
+
     def deposit_to_wallet(
+            self,
             deposit: DepositRequest,
-            current_user: User,
-            db: Session = Depends(get_db)
+            current_user: User
     ):
         # Get user wallet
-        user_wallet: Wallet(Base) = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        user_wallet: Wallet(Base) = self.db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
 
         if not user_wallet:
             raise HTTPException(
@@ -153,13 +153,11 @@ class WalletService:
         reference_code = f"TOP{uuid.uuid4().hex[:8].upper()}"
 
         try:
-            transaction = Transaction(
+            transaction = TransactionService(self.db).create_transaction(
                 from_wallet_id=None,
                 to_wallet_id=user_wallet.id,
                 amount=deposit_amount,
                 description=f"Card deposit - **** {deposit.card_number[-4:]}",
-                reference_code=reference_code,
-                status="completed",
                 transaction_type="deposit"
             )
 
@@ -167,9 +165,9 @@ class WalletService:
 
             transaction.processed_at = datetime.utcnow()
 
-            db.add(transaction)
-            db.commit()
-            db.refresh(transaction)
+            self.db.add(transaction)
+            self.db.commit()
+            self.db.refresh(transaction)
 
             return OperationResponse(
                 transaction_id=transaction.id,
@@ -180,13 +178,11 @@ class WalletService:
             )
 
         except Exception as e:
-            db.rollback()
+            self.db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Deposit failed"
             )
 
-    @staticmethod
-    def get_user_wallet(user: User,
-                        db: Session = Depends(get_db)) -> Wallet:
-        return db.query(Wallet).filter(Wallet.user_id == user.id).first()
+    def get_user_wallet(self, user: User) -> Wallet:
+        return self.db.query(Wallet).filter(Wallet.user_id == user.id).first()

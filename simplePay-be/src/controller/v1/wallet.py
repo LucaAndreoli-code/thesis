@@ -16,7 +16,7 @@ def deposit_to_wallet(
         db: Session = Depends(get_db)
 ):
     try:
-        return WalletService.deposit_to_wallet(deposit, current_user, db)
+        return WalletService(db).deposit_to_wallet(deposit, current_user)
     except HTTPException:
         raise
     except Exception as e:
@@ -30,7 +30,7 @@ def withdraw_from_wallet(
         db: Session = Depends(get_db)
 ):
     try:
-        return WalletService.withdraw_from_wallet(withdraw, current_user, db)
+        return WalletService(db).withdraw_from_wallet(withdraw, current_user)
     except HTTPException:
         raise
     except Exception as e:
@@ -43,7 +43,7 @@ def get_wallet_balance(
         db: Session = Depends(get_db)
 ) -> BalanceResponse:
     try:
-        user_wallet = WalletService.get_user_wallet(current_user, db)
+        user_wallet = WalletService(db).get_user_wallet(current_user)
         return user_wallet.get_balance()
     except HTTPException:
         raise

@@ -1,20 +1,22 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from src.service.token import TokenService
 from src.models.user import User
-from src.database.database import get_db
+from src.database.database import get_db, engine
 from src.service.user import UserService
 from src.schemas.auth import UserLogin, UserResponse, UserRegister
 
 security = HTTPBearer()
 
 class AuthService:
-    @staticmethod
-    def login(user_data: UserLogin, db: Session = Depends(get_db)):
+    def __init__(self, db: Session):
+        self.db = db
+
+    def login(self, user_data: UserLogin):
         try:
             # Authenticate user
-            user = UserService.authenticate_user(db, str(user_data.email), user_data.password)
+            user = UserService(self.db).authenticate_user(str(user_data.email), user_data.password)
             access_token = TokenService.generate_token(user)
 
             return {
@@ -26,10 +28,9 @@ class AuthService:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
 
-    @staticmethod
-    def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    def register(self, user_data: UserRegister):
         try:
-            user = UserService.create_user(db, user_data.model_dump())
+            user = UserService(self.db).create_user(user_data.model_dump())
 
             return UserResponse(
                 id=user.id,
@@ -46,7 +47,6 @@ class AuthService:
     @staticmethod
     def get_current_user(
             credentials: HTTPAuthorizationCredentials = Depends(security),
-            db: Session = Depends(get_db)
     ) -> User:
         token = credentials.credentials
 
@@ -60,12 +60,16 @@ class AuthService:
                 detail="Invalid token payload"
             )
 
+        # Creao una nuova sessione per trovare l'utente perché get_db non è disponibile qui essendo un metodo statico
+        dbSession = sessionmaker(bind=engine)
+        db = dbSession()
         user = db.query(User).filter(User.id == user_id).first()
-
+        db.close()
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found"
             )
+
 
         return user

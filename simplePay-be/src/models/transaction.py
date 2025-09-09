@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, Session
 from datetime import datetime
 from .base import Base
 
+# Questa qualle rappresenta una transazione (tra utenti o verso l'esterno)
 class Transaction(Base):
     __tablename__ = "transactions"
 

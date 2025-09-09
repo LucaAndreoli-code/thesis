@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/login", response_model=Token)
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
     try:
-        return AuthService.login(user_data, db)
+        return AuthService(db).login(user_data)
     except HTTPException:
         raise
     except Exception as e:
@@ -19,7 +19,7 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
 @router.post("/register", response_model=UserResponse)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
     try:
-        return AuthService.register(user_data, db)
+        return AuthService(db).register(user_data)
     except HTTPException:
         raise
     except Exception as e:

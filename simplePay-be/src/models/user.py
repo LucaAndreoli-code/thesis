@@ -3,11 +3,11 @@ from sqlalchemy.orm import relationship, Session
 from passlib.context import CryptContext
 from datetime import datetime
 
-from src.models.wallet import Wallet
 from .base import Base
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Questa classe rappresenta un utente del sistema
 class User(Base):
     __tablename__ = "users"
 
