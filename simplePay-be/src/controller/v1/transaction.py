@@ -11,7 +11,7 @@ from src.service.transaction import TransactionService
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
 @router.post("/send", response_model=PaymentResponse)
-def create_payment(
+def send_money(
         payment: PaymentRequest,
         db: Session = Depends(get_db),
         current_user:User=Depends(AuthService.get_current_user),
