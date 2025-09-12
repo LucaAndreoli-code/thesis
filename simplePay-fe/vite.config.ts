@@ -10,5 +10,8 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src')
     }
+  },
+  server: {
+    allowedHosts: ['thesis-app-myxvz.ondigitalocean.app', 'localhost'],
   }
 })
