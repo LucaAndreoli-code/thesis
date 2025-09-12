@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "start": "vite build && vite preview --host",
+    "start": "vite preview --host",
     "cy:open": "cypress open",
     "cy:run": "cypress run"
   },
