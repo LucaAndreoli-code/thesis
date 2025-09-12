@@ -6,10 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "start": "vite preview --host",
+    "start": "vite build && vite preview --host",
     "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "heroku-postbuild": "echo Building app... && npm run build"
+    "cy:run": "cypress run"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
