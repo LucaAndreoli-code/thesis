@@ -25,7 +25,7 @@
     </section>
 
     <!-- Actions Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <div
         class="card bg-base-100 border border-base-300 hover:border-base-content hover:shadow-md cursor-pointer p-6 text-center"
         onclick="sendModal.showModal()"
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Transaction History -->
-    <section class="card bg-base-100 border border-base-300 p-6">
+    <section class="card bg-base-100 border border-base-300 p-6 mb-4">
       <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h2 class="text-lg font-medium text-base-content">
           Transazioni recenti <span class="loading loading-dots loading-sm" v-if="isLoading"></span>
