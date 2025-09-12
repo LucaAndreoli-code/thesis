@@ -259,6 +259,8 @@ const openDetailModal = (transaction: Transaction) => {
 
 <style scoped>
 .container {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
   @media (width >= 96rem) {
     max-width: 80rem;
   }
