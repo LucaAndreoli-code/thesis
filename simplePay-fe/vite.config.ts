@@ -12,15 +12,9 @@ export default defineConfig({
     }
   },
   server: {
-    allowedHosts: ['localhost'],
-    port: 5173,
-    host: true,
-    strictPort: true
-  },
-  preview: {
-    allowedHosts: ['thesis-app-myxvz.ondigitalocean.app'],
-    host: true,
+    allowedHosts: ['thesis-app-myxvz.ondigitalocean.app', 'localhost'],
     port: 4173,
+    host: true,
     strictPort: true
   }
 })
