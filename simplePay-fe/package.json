@@ -9,7 +9,7 @@
     "start": "vite preview --host",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "echo Building app... && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
