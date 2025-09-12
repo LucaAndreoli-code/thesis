@@ -144,9 +144,11 @@ class TransactionService:
             )
 
         if start_date:
-            query = query.filter(Transaction.created_at >= start_date)
+            start_of_day = datetime.combine(start_date.date(), datetime.min.time())
+            query = query.filter(Transaction.created_at >= start_of_day)
         if end_date:
-            query = query.filter(Transaction.created_at <= end_date)
+            end_of_day = datetime.combine(end_date.date(), datetime.max.time())
+            query = query.filter(Transaction.created_at <= end_of_day)
 
         total = query.count()
         transactions = query.order_by(Transaction.created_at.desc()).offset((page - 1) * page_size).limit(
