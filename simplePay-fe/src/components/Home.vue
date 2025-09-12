@@ -258,7 +258,6 @@ const openDetailModal = (transaction: Transaction) => {
 </script>
 
 <style scoped>
-/* Override responsive container max-widths */
 .container {
   @media (width >= 96rem) {
     max-width: 80rem;

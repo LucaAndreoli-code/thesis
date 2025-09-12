@@ -15,6 +15,11 @@ export interface WithdrawRequest {
   back_account_name: string
 }
 
+export interface Balance {
+  balance: string
+  currency: string
+}
+
 export default {
   async getBalance() {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/wallet/balance`, {
@@ -44,7 +49,7 @@ export default {
       )
       throw new Error('Deposit failed')
     }
-    return response.text()
+    return
   },
   async withdraw(body: WithdrawRequest) {
     const response = await fetch(`${import.meta.env.VITE_APP_BASE_URL}/wallet/withdraw`, {
@@ -57,15 +62,10 @@ export default {
     if (!response.ok) {
       notify(
         'error',
-        'Errore durante il prelievo. Controlla i dati del tuo conto o riprova più tardi.'
+        `Errore durante l'operazione di bonifico. Controlla i dati del tuo conto o riprova più tardi.`
       )
       throw new Error('Withdrawal failed')
     }
-    return response.text()
+    return
   }
-}
-
-export interface Balance {
-  balance: string
-  currency: string
 }

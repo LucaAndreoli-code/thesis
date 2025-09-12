@@ -38,7 +38,7 @@ export default {
       notify('error', 'Errore durante il pagamento. Controlla i dati inseriti o riprova più tardi.')
       throw new Error('Payment failed')
     }
-    return response.text()
+    return
   },
   async getTransactions(
     page: number,

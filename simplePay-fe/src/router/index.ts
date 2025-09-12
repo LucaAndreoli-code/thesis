@@ -2,8 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import Home from '@/components/Home.vue'
-import { jwtDecode } from 'jwt-decode'
-import { getTokenInfo } from '@/service/jwt'
 
 const routes = [
   {
@@ -14,13 +12,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    meta: { requiresGuest: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/register',
     name: 'Register',
     component: Register,
-    meta: { requiresGuest: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/home',
@@ -51,7 +49,7 @@ router.beforeEach((to, _, next) => {
     return
   }
 
-  if (to.meta.requiresGuest && authenticated) {
+  if (!to.meta.requiresAuth && authenticated) {
     next('/home')
     return
   }

@@ -28,7 +28,7 @@ export default {
       notify('error', 'Errore durante la registrazione. Riprova più tardi.')
       throw new Error('Registration failed')
     }
-    return response.text() as Promise<string>
+    return
   }
 }
 
