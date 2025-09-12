@@ -74,11 +74,12 @@
               <span class="mx-1">/</span>
               <input
                 id="topupExpiryYear"
-                type="text"
+                type="number"
                 class="input input-bordered w-1/2"
                 placeholder="AA"
-                maxlength="2"
-                v-model="form.expiry_year"
+                v-model.number="form.expiry_year"
+                :min="new Date().getFullYear() % 100"
+                max="99"
                 required
               />
             </div>
