@@ -6,7 +6,7 @@ from src.controller.router import router
 print("Starting ...")
 setup_database()
 
-app = FastAPI(title="Simple Pay", version="1.0.0", docs_url="/docs", openapi_url="/be/openapi.json")
+app = FastAPI(title="Simple Pay", version="1.0.0", docs_url="/docs", openapi_url="/openapi.json")
 
 @app.get("/health", tags=["Health Check"])
 def health_check():
