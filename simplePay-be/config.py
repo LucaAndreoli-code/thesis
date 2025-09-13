@@ -11,3 +11,4 @@ else:
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgres")
 SECRET_KEY = os.getenv("SECRET_KEY")
+ROOT_PATH = os.getenv("ROOT_PATH", "")
