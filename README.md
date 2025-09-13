@@ -7,6 +7,7 @@ Repository contenente il progetto full-stack per la tesi di laurea - Sistema ban
 L'applicazione è disponibile online all'indirizzo:
 
 **[SimplePay](https://thesis-app-myxvz.ondigitalocean.app/)**
+**[Swagger/OpenAPI](https://thesis-app-myxvz.ondigitalocean.app/be/docs)**
 
 ### Utenze di test:
 
@@ -67,7 +68,7 @@ pip install -r requirements.txt
 python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
-Swagger disponibile a questo indirizzo post avvio: **[http://0.0.0.0:8000/docs]**
+Swagger disponibile a questo indirizzo post avvio: **[Swagger/OpenAPI Locale](http://0.0.0.0:8000/docs)**
 
 #### 3. Avvio del frontend:
 
