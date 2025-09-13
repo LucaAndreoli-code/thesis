@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship, Session
 from passlib.context import CryptContext
 from datetime import datetime
 
+from sqlalchemy.sql import expression
+
 from .base import Base
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,6 +21,8 @@ class User(Base):
     last_name = Column(String(50), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_deleted = Column(Boolean, default=False, nullable=False, server_default=expression.false())
+    deleted_at = Column(DateTime, default=None, nullable=True)
 
     wallet = relationship("Wallet", back_populates="user")
 

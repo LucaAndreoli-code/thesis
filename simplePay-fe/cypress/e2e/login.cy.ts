@@ -4,7 +4,7 @@ const loginEndpoint = `${baseUrl}/auth/login`
 
 describe('Login Page', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/login')
+    cy.visit('http://localhost:4173/login')
   })
 
   it('should display login form correctly', () => {

@@ -72,5 +72,24 @@ def test_register_invalid_password():
     assert response.status_code == 400
     assert response.json() == {"detail": "Password must be at least 8 characters long"}
 
+def test_register_and_delete_user():
+    response = client.post("api/v1/auth/register", json={
+        "username": "tobedeleted",
+        "email": "todelete@example.com",
+        "password": "deletepassword123",
+        "first_name": "ToBe",
+        "last_name": "Deleted"
+    })
+    assert response.status_code == 200
+    response = client.post("api/v1/auth/login", json={
+        "email": "todelete@example.com",
+        "password": "deletepassword123"
+    })
+    assert response.status_code == 200
+    token = response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.delete("api/v1/user/delete", headers=headers)
+    assert response.status_code == 200
+
 
 

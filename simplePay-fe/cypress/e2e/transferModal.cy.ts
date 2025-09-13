@@ -5,7 +5,7 @@ const transferEndpoint = `${baseUrl}/wallet/withdraw`
 describe('Transfer Modal', () => {
   beforeEach(() => {
     cy.login()
-    cy.visit('http://localhost:5173/home')
+    cy.visit('http://localhost:4173/home')
 
     cy.get('div').contains('Trasferimento bancario').click()
 

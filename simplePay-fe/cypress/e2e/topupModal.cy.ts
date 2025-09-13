@@ -5,7 +5,7 @@ const depositEndpoint = `${baseUrl}/wallet/deposit`
 describe('Topup Modal', () => {
   beforeEach(() => {
     cy.login()
-    cy.visit('http://localhost:5173/home')
+    cy.visit('http://localhost:4173/home')
 
     cy.get('div').contains('Aggiungi fondi').click()
 
@@ -65,7 +65,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()
@@ -84,7 +84,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()
@@ -98,7 +98,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()
@@ -115,7 +115,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('4000000000000002')
     cy.get('#topupCardHolder').type('Invalid Card')
     cy.get('#topupExpiryDate').type('01')
-    cy.get('#topupExpiryYear').type('20')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('000')
 
     cy.get('#topupSubmit').click()
@@ -134,7 +134,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()
@@ -162,7 +162,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()
@@ -199,7 +199,7 @@ describe('Topup Modal', () => {
       cy.get('#topupCardNumber').clear().type(cardNumber)
       cy.get('#topupCardHolder').clear().type('Mario Rossi')
       cy.get('#topupExpiryDate').clear().type('12')
-      cy.get('#topupExpiryYear').clear().type('25')
+      cy.get('#topupExpiryYear').clear().type('80')
       cy.get('#topupCvv').clear().type('123')
 
       cy.get('#topupSubmit').click()
@@ -219,7 +219,7 @@ describe('Topup Modal', () => {
     cy.get('#topupCardNumber').type('1234567890123456')
     cy.get('#topupCardHolder').type('Mario Rossi')
     cy.get('#topupExpiryDate').type('12')
-    cy.get('#topupExpiryYear').type('25')
+    cy.get('#topupExpiryYear').type('80')
     cy.get('#topupCvv').type('123')
 
     cy.get('#topupSubmit').click()

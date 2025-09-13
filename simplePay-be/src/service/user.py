@@ -5,7 +5,6 @@ from src.models.user import User
 from src.models.wallet import Wallet
 from src.service.wallet import WalletService
 
-
 class UserService:
     def __init__(self, db: Session):
         self.db = db
@@ -57,28 +56,34 @@ class UserService:
     def authenticate_user(self, email: str, password: str) -> User:
         user = UserService(self.db).get_user_by_email(email)
 
-        if not user or not user.authenticate(password):
+        if not user or not user.authenticate(password) or user.is_deleted:
             raise HTTPException(status_code=401, detail="Invalid email or password")
         return user
 
     def get_user_by_email(self, email: str) -> User:
-        user = self.db.query(User).filter(User.email == email).first()
+        user = self.db.query(User).filter(User.email == email and User.is_deleted == False).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return user
 
+    # anonimizza l'utente invece di eliminarlo per mantenere l'integrità referenziale
     def delete_by_id(self, user_id: int):
         user = self.db.query(User).filter(User.id == user_id).first()
+        user.username = f"deleted_user_{user_id}"
+        user.first_name = "Deleted"
+        user.last_name = "User"
+        user.email = f"deleted_{user_id}@example.com"
+        user.is_deleted = True
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
         try:
-            self.db.delete(user)
             self.db.commit()
         except Exception as e:
             self.db.rollback()
             raise HTTPException(status_code=500, detail=f"User deletion error: {str(e)}")
 
+    # per testing
     def delete_by_email(self, email: str):
         wallet = self.db.query(Wallet).filter(Wallet.user.has(email=email)).first()
         user = self.db.query(User).filter(User.email == email).first()

@@ -5,7 +5,7 @@ const sendMoneyEndpoint = `${baseUrl}/payments/send`
 describe('Send Money Modal', () => {
   beforeEach(() => {
     cy.login()
-    cy.visit('http://localhost:5173/home')
+    cy.visit('http://localhost:4173/home')
 
     cy.get('div').contains('Invia denaro').click()
   })

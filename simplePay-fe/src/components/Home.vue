@@ -3,15 +3,21 @@
     <!-- Header -->
     <header class="flex justify-between items-center py-8 border-b border-base-300 mb-8">
       <div class="text-2xl font-semibold">Simple Pay</div>
-      <div class="flex items-center gap-2">
-        <div class="">
-          <div class="text-base text-right">{{ userInformation?.email }}</div>
-          <div class="text-base text-sm text-right">{{ userInformation?.username }}</div>
+      <div class="flex flex-col items-end">
+        <div class="flex items-center">
+          <button
+            class="btn btn-ghost btn-sm text-error"
+            @click="openDeleteModal"
+            title="Elimina Account"
+          >
+            <span class="text-sm">Elimina Account</span>
+          </button>
+          <div class="h-8 w-px bg-base-300"></div>
+          <button class="btn btn-ghost btn-sm" @click="handleLogout" title="Logout">
+            <span class="text-sm">Logout</span>
+          </button>
         </div>
-        <div class="h-8 w-px bg-base-300 mx-2"></div>
-        <button class="btn btn-ghost btn-sm px-2" @click="handleLogout" title="Logout">
-          <span class="text-base text-sm">Logout</span>
-        </button>
+        <div class="text-sm text-base-content/70 mt-1">{{ userInformation?.email }}</div>
       </div>
     </header>
 
@@ -162,6 +168,7 @@
     </section>
   </div>
 
+  <DeleteModal id="deleteModal"></DeleteModal>
   <SendModal id="sendModal" @refresh="getUserInformations" />
   <TopupModal id="topupModal" @refresh="getUserInformations" />
   <TransferModal id="transferModal" @refresh="getUserInformations" />
@@ -175,6 +182,7 @@ import TransferModal from '@/components/modals/TransferModal.vue'
 import TopupModal from '@/components/modals/TopupModal.vue'
 import SendModal from '@/components/modals/SendModal.vue'
 import DetailModal from '@/components/modals/DetailModal.vue'
+import DeleteModal from './modals/DeleteModal.vue'
 import { getTokenInfo, type TokenInformations } from '@/service/jwt'
 import payments, { type Paginated, type Transaction } from '@/api/payments'
 import wallet, { type Balance } from '@/api/wallet'
@@ -247,6 +255,11 @@ const debounceSearch = (() => {
 const getUserInformations = () => {
   getUserTransactions()
   getUserBalance()
+}
+
+const openDeleteModal = () => {
+  const deleteModal = document.getElementById('deleteModal') as HTMLDialogElement
+  deleteModal.showModal()
 }
 
 const openDetailModal = (transaction: Transaction) => {
