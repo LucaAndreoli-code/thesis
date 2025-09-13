@@ -54,7 +54,7 @@ cd simplePay-be
 python3 -m venv venv
 source ./venv/bin/activate
 pip3 install -r requirements.txt
-python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
 **Windows:**
@@ -64,7 +64,7 @@ cd simplePay-be
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
 #### 3. Avvio del frontend:
@@ -82,6 +82,42 @@ npm run dev
 1. **Frontend:** `http://localhost:4173/`
 2. **Backend API:** `http://localhost:8000/`
 3. **Documentazione API:** `http://localhost:8000/docs`
+
+### Configurazione delle ambiente di test:
+
+**Test Backend:**
+
+Con database avviato:
+
+```bash
+cd simplePay-be
+pytest -v
+```
+
+**Test Fronted:**
+
+Avviare il database di test del backend:
+
+```bash
+cd simplePay-be
+python -m src.main --env test
+```
+
+Successivamente avviare i test cypress:
+
+Esegue i test:
+
+```bash
+cd simplePay-fe
+npm run cy:run
+```
+
+Apre cypress:
+
+```bash
+cd simplePay-fe
+npm run cy:open
+```
 
 ### Configurazione delle variabili d'ambiente:
 
