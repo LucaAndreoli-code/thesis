@@ -67,6 +67,8 @@ pip install -r requirements.txt
 python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
 
+Swagger disponibile a questo indirizzo post avvio: **[http://0.0.0.0:8000/docs]**
+
 #### 3. Avvio del frontend:
 
 **macOS & Windows:**
