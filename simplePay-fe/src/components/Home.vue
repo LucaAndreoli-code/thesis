@@ -2,7 +2,7 @@
   <div class="container mx-auto p-6s">
     <!-- Header -->
     <header class="flex justify-between items-center py-8 border-b border-base-300 mb-8">
-      <div class="text-2xl font-semibold">Simple Pay</div>
+      <div class="text-2xl font-semibold ml-3">Simple Pay</div>
       <div class="flex flex-col items-end">
         <div class="flex items-center">
           <button
@@ -17,7 +17,7 @@
             <span class="text-sm">Logout</span>
           </button>
         </div>
-        <div class="text-sm text-base-content/70 mt-1">{{ userInformation?.email }}</div>
+        <div class="text-sm text-base-content/70 mt-1 mr-3">{{ userInformation?.email }}</div>
       </div>
     </header>
 
