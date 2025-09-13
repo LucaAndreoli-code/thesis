@@ -2,6 +2,17 @@
 
 Repository contenente il progetto full-stack per la tesi di laurea - Sistema bancario online semplificato
 
+## Demo Online
+
+L'applicazione è disponibile online all'indirizzo:
+
+**[SimplePay](https://thesis-app-myxvz.ondigitalocean.app/)**
+
+### Utenze di test:
+
+- Email: `test@example.com` - Password: `password123`
+- Email: `user@example.com` - Password: `password123`
+
 ## Tecnologie
 
 **Frontend:**
@@ -68,37 +79,27 @@ npm run dev
 
 ### Accesso Applicazione:
 
-1. **Frontend:** `http://localhost:5173/`
+1. **Frontend:** `http://localhost:4173/`
 2. **Backend API:** `http://localhost:8000/`
 3. **Documentazione API:** `http://localhost:8000/docs`
 
-### Utenze di test:
+### Configurazione delle variabili d'ambiente:
 
-- Email: `test@example.com` - Password: `password123`
-- Email: `user@example.com` - Password: `password123`
+Prima di avviare l'applicazione, se necessario modificare variabili d'ambiente su questi file:
 
-<!-- ## Testing
+**Backend:**
 
-### Backend:
 ```bash
-cd backend
-pytest tests/
+# Modificare le variabili nel file
+simplePay-be/.env
 ```
 
-### Frontend:
+**Frontend:**
+
 ```bash
-cd frontend
-npm test              # Test unitari
-npm run test:e2e      # Test E2E
+# Modificare le variabili nel file
+simplePay-fe/.env.development
 ```
-
-## Configurazione
-
-Copia il file `.env.example` in `.env` e modifica le variabili secondo il tuo ambiente:
-
-```bash
-cp .env.example .env
-``` -->
 
 ## Funzionalità
 
