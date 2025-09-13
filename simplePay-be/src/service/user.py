@@ -1,4 +1,6 @@
 import uuid
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from src.models.user import User
@@ -74,6 +76,7 @@ class UserService:
         user.last_name = "User"
         user.email = f"deleted_{user_id}@example.com"
         user.is_deleted = True
+        user.deleted_at = datetime.now()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
