@@ -101,13 +101,14 @@
         <div
           v-for="transaction in userTransactions.data"
           :key="transaction.id"
-          class="flex justify-between items-center py-4 border-b border-base-200"
+          class="flex justify-between items-center py-4 border-b border-base-200 cursor-pointer hover:bg-base-200"
+          @click="openDetailModal(transaction)"
           :class="{
             'border-b-0':
               userTransactions.data.indexOf(transaction) === userTransactions.data.length - 1
           }"
         >
-          <div class="flex items-center" @click="openDetailModal(transaction)">
+          <div class="flex items-center">
             <div
               class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center mr-4 text-base-content/70"
             >
@@ -122,7 +123,7 @@
             <div>
               <h4 class="text-sm font-medium mb-1">{{ transaction.description }}</h4>
               <p class="text-xs text-base-content/70">
-                {{ new Date(transaction.created_at).toLocaleString() }}
+                {{ new Date(transaction.created_at).toLocaleString('it-IT') }}
               </p>
             </div>
           </div>

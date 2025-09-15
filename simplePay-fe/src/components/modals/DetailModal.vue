@@ -76,7 +76,7 @@
 
         <div class="flex justify-between items-center py-2 border-b">
           <span class="font-medium">Data</span>
-          <span>{{ new Date(transaction.created_at).toLocaleString() }}</span>
+          <span>{{ new Date(transaction.created_at).toLocaleString('it-IT') }}</span>
         </div>
       </div>
 
