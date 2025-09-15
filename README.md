@@ -52,8 +52,8 @@ docker-compose up
 
 ```bash
 cd simplePay-be
-python3 -m venv venv
-source ./venv/bin/activate
+python3 -m venv .venv
+source ./.venv/bin/activate
 pip3 install -r requirements.txt
 python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
@@ -62,13 +62,11 @@ python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 
 ```bash
 cd simplePay-be
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
-
-Swagger disponibile a questo indirizzo post avvio: **[Swagger/OpenAPI Locale](http://0.0.0.0:8000/docs)**
 
 #### 3. Avvio del frontend:
 
@@ -84,7 +82,7 @@ npm run dev
 
 1. **Frontend:** `http://localhost:4173/`
 2. **Backend API:** `http://localhost:8000/`
-3. **Documentazione API:** `http://localhost:8000/docs`
+3. **Documentazione API:** **[Swagger/OpenAPI](http://0.0.0.0:8000/docs)**
 
 ### Configurazione delle ambiente di test:
 
@@ -108,15 +106,19 @@ python -m src.main --env test
 
 Successivamente avviare i test cypress:
 
-Esegue i test:
+Avviare un'istanza dell'applicazione:
+```bash
+cd simplePay-fe
+npm run dev
+```
 
+In un altro terminale avviare i test:
 ```bash
 cd simplePay-fe
 npm run cy:run
 ```
 
 Apre cypress:
-
 ```bash
 cd simplePay-fe
 npm run cy:open
