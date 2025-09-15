@@ -123,7 +123,7 @@
             <div>
               <h4 class="text-sm font-medium mb-1">{{ transaction.description }}</h4>
               <p class="text-xs text-base-content/70">
-                {{ new Date(transaction.created_at).toLocaleString('it-IT') }}
+                {{ new Date(transaction.created_at).toLocaleString() }}
               </p>
             </div>
           </div>
