@@ -1,6 +1,6 @@
 # Simple Pay
 
-Repository contenente il progetto full-stack per la tesi di laurea - Sistema bancario online semplificato
+Repository contenente il progetto full-stack per la tesi di laurea - Sistema di pagamenti personali semplificati per un’impresa del settore finanziario
 
 ## Demo Online
 
