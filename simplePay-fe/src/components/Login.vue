@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import auth from '@/api/auth'
+import { notify } from '@/service/alert'
 import { isLoading, withLoading } from '@/service/loading'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -60,7 +61,7 @@ const handleLogin = async () => {
     try {
       const res = await auth.login(email.value, password.value)
       localStorage.setItem('userToken', res.access_token)
-
+      notify('success', 'Login avvenuto con successo.')
       await router.push('/home')
     } catch (error) {
       console.error('Login failed:', error)

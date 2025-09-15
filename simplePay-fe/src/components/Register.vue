@@ -105,6 +105,7 @@ const handleRegister = async () => {
       form.value.email,
       form.value.password
     )
+    notify('success', 'Registrazione avvenuta con successo. Effettua il login per continuare.')
     router.push('/login')
   } catch (error) {
     console.error('Registration failed:', error)
