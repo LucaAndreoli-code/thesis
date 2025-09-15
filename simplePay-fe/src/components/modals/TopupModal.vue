@@ -68,6 +68,7 @@
                 placeholder="MM"
                 maxlength="2"
                 v-model="form.expiry_month"
+                pattern="[0-9]{2}"
                 max="12"
                 required
               />
