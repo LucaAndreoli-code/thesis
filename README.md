@@ -4,9 +4,9 @@ Repository contenente il progetto full-stack per la tesi di laurea - Sistema di 
 
 ## Demo Online
 
-L'applicazione è disponibile online all'indirizzo:
+L'applicazione è disponibile online agli indirizzi:
 
-**[SimplePay](https://thesis-app-myxvz.ondigitalocean.app/)**
+**[SimplePay](https://thesis-app-myxvz.ondigitalocean.app/)** -
 **[Swagger/OpenAPI](https://thesis-app-myxvz.ondigitalocean.app/be/docs)**
 
 ### Utenze di test:
